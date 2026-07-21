@@ -78,9 +78,9 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     reviewCount: 210,
     badge: 'Coming Soon',
     description: 'Soft-touch velvet coated card stock with customizable high-end metallic foil embossed layout.',
-    imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=800&auto=format&fit=crop',
+    imageUrl: '/jackets/images.jpg',
     galleryImages: [
-      'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=800&auto=format&fit=crop'
+      '/jackets/images.jpg'
     ],
     colorSwatches: ['#1e1b4b', '#312e81', '#6366f1'],
     configuratorKey: 'businesscard',
@@ -97,9 +97,9 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     reviewCount: 76,
     badge: 'Coming Soon',
     description: 'Heavy fleece lined dark hoodie with water-resistant coating, thumbhole cuffs, and high collar.',
-    imageUrl: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop',
+    imageUrl: '/jackets/jacket.jpg',
     galleryImages: [
-      'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop'
+      '/jackets/jacket.jpg'
     ],
     colorSwatches: ['#18181b', '#52525b', '#d4d4d8'],
     tags: ['Hoodie', 'Winter', 'Darkwear'],
