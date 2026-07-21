@@ -13,6 +13,7 @@ import { useMockupRenderer } from './hooks/useMockupRenderer';
 import { Topbar } from './Topbar/Topbar';
 import { Mockup3DPreview } from './Mockup3DPreview/Mockup3DPreview';
 import { PRODUCTS, getDesignSceneUrl, getModelUrl } from './constants';
+import { LandingPage } from '../landing/LandingPage';
 import styles from './App.module.css';
 
 // Default product to load on startup
@@ -25,6 +26,9 @@ interface AppProps {
 export default function App({ config }: AppProps) {
   const designEngineRef = useRef<CreativeEditorSDK | null>(null);
   const designSceneStringRef = useRef<string | null>(null);
+
+  // View state: 'landing' (E-commerce store) vs 'editor' (3D Studio)
+  const [activeView, setActiveView] = useState<'landing' | 'editor'>('landing');
 
   const [currentProductKey, setCurrentProductKey] =
     useState(DEFAULT_PRODUCT_KEY);
@@ -54,7 +58,12 @@ export default function App({ config }: AppProps) {
   const handleProductChange = useCallback(
     async (productKey: string) => {
       const designEngine = designEngineRef.current;
-      if (!designEngine || productKey === currentProductKey) return;
+      if (!designEngine) {
+        setCurrentProductKey(productKey);
+        return;
+      }
+
+      if (productKey === currentProductKey) return;
 
       setIsProductSwitching(true);
       setCurrentProductKey(productKey);
@@ -77,6 +86,17 @@ export default function App({ config }: AppProps) {
       }
     },
     [currentProductKey, renderMockupForProduct, resetMockupScene]
+  );
+
+  // Handler when a user selects a product from Landing Page
+  const handleSelectProductFromLanding = useCallback(
+    async (productKey: string) => {
+      setActiveView('editor');
+      if (PRODUCTS[productKey] && productKey !== currentProductKey) {
+        await handleProductChange(productKey);
+      }
+    },
+    [currentProductKey, handleProductChange]
   );
 
   // ============================================================================
@@ -151,38 +171,58 @@ export default function App({ config }: AppProps) {
   // Render
   // ============================================================================
 
-  const product = PRODUCTS[currentProductKey];
+  const product = PRODUCTS[currentProductKey] || PRODUCTS[DEFAULT_PRODUCT_KEY];
 
   return (
     <div className={styles.app}>
-      <Topbar
-        currentProductKey={currentProductKey}
-        onProductChange={handleProductChange}
-        disabled={isProductSwitching}
-      />
+      {/* Landing Page View */}
+      {activeView === 'landing' && (
+        <LandingPage
+          onSelectProduct={handleSelectProductFromLanding}
+          onLaunchStudio={() => setActiveView('editor')}
+        />
+      )}
 
+      {/* 3D Configurator Studio View */}
       <div
-        className={`${styles.mainLayout} ${isFullscreen ? styles.fullscreenLayout : ''}`}
+        style={{
+          display: activeView === 'editor' ? 'flex' : 'none',
+          flexDirection: 'column',
+          width: '100%',
+          height: '100vh',
+          overflow: 'hidden'
+        }}
       >
-        <Mockup3DPreview
-          mockupImageUrl={mockupImageUrl}
-          modelUrl={resolveAssetPath(getModelUrl(currentProductKey))}
-          cameraOrbit={product.cameraOrbit}
-          baseColorTextureIndex={product.baseColorTextureIndex}
-          isLoading={isLoading}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={handleToggleFullscreen}
+        <Topbar
+          currentProductKey={currentProductKey}
+          onProductChange={handleProductChange}
+          disabled={isProductSwitching}
+          onBackToStore={() => setActiveView('landing')}
         />
 
-        {!isFullscreen && (
-          <div className={styles.editorWrapper}>
-            <CreativeEditor
-              className={styles.editor}
-              config={config}
-              init={handleEditorInit}
-            />
-          </div>
-        )}
+        <div
+          className={`${styles.mainLayout} ${isFullscreen ? styles.fullscreenLayout : ''}`}
+        >
+          <Mockup3DPreview
+            mockupImageUrl={mockupImageUrl}
+            modelUrl={resolveAssetPath(getModelUrl(currentProductKey))}
+            cameraOrbit={product.cameraOrbit}
+            baseColorTextureIndex={product.baseColorTextureIndex}
+            isLoading={isLoading}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={handleToggleFullscreen}
+          />
+
+          {!isFullscreen && (
+            <div className={styles.editorWrapper}>
+              <CreativeEditor
+                className={styles.editor}
+                config={config}
+                init={handleEditorInit}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
