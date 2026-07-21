@@ -139,8 +139,9 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0;
+  padding: 0;
+  margin: 0;
   overflow: auto;
   overscroll-behavior: auto;
   font-family:
@@ -149,8 +150,8 @@
     'Segoe UI',
     Roboto,
     sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: #0c0d10;
+  color: #f3f4f6;
 }
 
 

@@ -14,6 +14,8 @@ import { Topbar } from './Topbar/Topbar';
 import { Mockup3DPreview } from './Mockup3DPreview/Mockup3DPreview';
 import { PRODUCTS, getDesignSceneUrl, getModelUrl } from './constants';
 import { LandingPage } from '../landing/LandingPage';
+import { ProductDetailPage } from '../landing/ProductDetailPage';
+import { ProductItem } from '../landing/catalog';
 import styles from './App.module.css';
 
 // Default product to load on startup
@@ -27,8 +29,9 @@ export default function App({ config }: AppProps) {
   const designEngineRef = useRef<CreativeEditorSDK | null>(null);
   const designSceneStringRef = useRef<string | null>(null);
 
-  // View state: 'landing' (E-commerce store) vs 'editor' (3D Studio)
-  const [activeView, setActiveView] = useState<'landing' | 'editor'>('landing');
+  // View state: 'landing' vs 'product-detail' vs 'editor'
+  const [activeView, setActiveView] = useState<'landing' | 'product-detail' | 'editor'>('landing');
+  const [selectedProductItem, setSelectedProductItem] = useState<ProductItem | null>(null);
 
   const [currentProductKey, setCurrentProductKey] =
     useState(DEFAULT_PRODUCT_KEY);
@@ -88,15 +91,16 @@ export default function App({ config }: AppProps) {
     [currentProductKey, renderMockupForProduct, resetMockupScene]
   );
 
-  // Handler when a user selects a product from Landing Page
-  const handleSelectProductFromLanding = useCallback(
-    async (productKey: string) => {
-      setActiveView('editor');
-      if (PRODUCTS[productKey] && productKey !== currentProductKey) {
-        await handleProductChange(productKey);
+  // Handler when a user selects a product item from Landing Page
+  const handleSelectProductItem = useCallback(
+    (product: ProductItem) => {
+      setSelectedProductItem(product);
+      if (product.configuratorKey && PRODUCTS[product.configuratorKey]) {
+        setCurrentProductKey(product.configuratorKey);
       }
+      setActiveView('product-detail');
     },
-    [currentProductKey, handleProductChange]
+    []
   );
 
   // ============================================================================
@@ -178,8 +182,22 @@ export default function App({ config }: AppProps) {
       {/* Landing Page View */}
       {activeView === 'landing' && (
         <LandingPage
-          onSelectProduct={handleSelectProductFromLanding}
+          onSelectProductItem={handleSelectProductItem}
           onLaunchStudio={() => setActiveView('editor')}
+        />
+      )}
+
+      {/* Product Detail / Checkout Page View */}
+      {activeView === 'product-detail' && selectedProductItem && (
+        <ProductDetailPage
+          product={selectedProductItem}
+          onBack={() => setActiveView('landing')}
+          onOpen3DStudio={async (configKey) => {
+            setActiveView('editor');
+            if (PRODUCTS[configKey] && configKey !== currentProductKey) {
+              await handleProductChange(configKey);
+            }
+          }}
         />
       )}
 
@@ -197,7 +215,13 @@ export default function App({ config }: AppProps) {
           currentProductKey={currentProductKey}
           onProductChange={handleProductChange}
           disabled={isProductSwitching}
-          onBackToStore={() => setActiveView('landing')}
+          onBackToStore={() => {
+            if (selectedProductItem) {
+              setActiveView('product-detail');
+            } else {
+              setActiveView('landing');
+            }
+          }}
         />
 
         <div

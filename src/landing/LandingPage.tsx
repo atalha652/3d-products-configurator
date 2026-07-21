@@ -3,11 +3,11 @@ import { CATALOG_PRODUCTS, ProductItem } from './catalog';
 import styles from './LandingPage.module.css';
 
 interface LandingPageProps {
-  onSelectProduct: (productKey: string) => void;
+  onSelectProductItem: (product: ProductItem) => void;
   onLaunchStudio: () => void;
 }
 
-export function LandingPage({ onSelectProduct, onLaunchStudio }: LandingPageProps) {
+export function LandingPage({ onSelectProductItem, onLaunchStudio }: LandingPageProps) {
   const [activeCategory, setActiveCategory] = useState<'apparel' | 'furniture'>('apparel');
   const [cartCount, setCartCount] = useState(0);
 
@@ -16,12 +16,26 @@ export function LandingPage({ onSelectProduct, onLaunchStudio }: LandingPageProp
   );
 
   const handleProductAction = (product: ProductItem) => {
-    if (product.configuratorKey) {
-      onSelectProduct(product.configuratorKey);
-    } else {
-      onSelectProduct('apparel');
-    }
+    if (product.isDisabled) return;
+    onSelectProductItem(product);
   };
+
+  // Dynamic Hero Content based on active category
+  const heroContent = activeCategory === 'apparel'
+    ? {
+        image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1600&auto=format&fit=crop',
+        heading: <>3D Customizer <span className={styles.heroItalic}>for</span><br />Premium Apparel</>,
+        subtext: 'Interactive WebGL 3D streetwear and apparel customization studio with real-time textures and dynamic lighting.',
+        tag: 'Streetwear & Apparel 3D Studio',
+        stat: '100%'
+      }
+    : {
+        image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600&auto=format&fit=crop',
+        heading: <>3D Customizer <span className={styles.heroItalic}>for</span><br />Modern Furniture</>,
+        subtext: 'Explore modular living room furniture, luxury armchairs, and workspace desks with real-time 3D inspection.',
+        tag: 'Natural. Sustainable. Eco-conscious 3D.',
+        stat: '96%'
+      };
 
   return (
     <div className={styles.container}>
@@ -29,13 +43,22 @@ export function LandingPage({ onSelectProduct, onLaunchStudio }: LandingPageProp
       <nav className={styles.navbar}>
         <ul className={styles.leftNav}>
           <li className={`${styles.navLink} ${styles.navLinkActive}`}>Shop</li>
-          <li className={styles.navLink} onClick={() => setActiveCategory('apparel')}>Apparel</li>
-          <li className={styles.navLink} onClick={() => setActiveCategory('furniture')}>Furniture</li>
-          <li className={styles.navLink} onClick={onLaunchStudio}>3D Studio</li>
+          <li
+            className={`${styles.navLink} ${activeCategory === 'apparel' ? styles.navLinkActive : ''}`}
+            onClick={() => setActiveCategory('apparel')}
+          >
+            Apparel
+          </li>
+          <li
+            className={`${styles.navLink} ${activeCategory === 'furniture' ? styles.navLinkActive : ''}`}
+            onClick={() => setActiveCategory('furniture')}
+          >
+            Furniture
+          </li>
         </ul>
 
         <div className={styles.brandLogo} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          Homedine <span>3D</span>
+          Homedine
         </div>
 
         <div className={styles.rightNav}>
@@ -65,36 +88,31 @@ export function LandingPage({ onSelectProduct, onLaunchStudio }: LandingPageProp
         </div>
       </nav>
 
-      {/* Hero Banner matching screenshot */}
+      {/* Dynamic Hero Banner matching category */}
       <section className={styles.heroBanner}>
         <img
-          src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600&auto=format&fit=crop"
-          alt="3D Product Configurator Banner"
+          key={activeCategory}
+          src={heroContent.image}
+          alt={`${activeCategory} Configurator Banner`}
           className={styles.heroBg}
         />
 
         <div className={styles.heroOverlayLeft}>
           <h1 className={styles.heroMainHeading}>
-            3D Customizer <span className={styles.heroItalic}>for</span><br />
-            a greener home
+            {heroContent.heading}
           </h1>
 
           <p className={styles.heroSubtext}>
-            Interactive WebGL 3D customization studio with real-time textures, dynamic lighting, and instant preview.
+            {heroContent.subtext}
           </p>
-
-          <button className={styles.shopNowBtn} onClick={onLaunchStudio}>
-            <span>Shop now</span>
-            <span>→</span>
-          </button>
         </div>
 
         <div className={styles.heroOverlayRight}>
           <div className={styles.heroOverlayTag}>
-            Natural. Sustainable.<br />Eco-conscious 3D.
+            {heroContent.tag}
           </div>
           <div className={styles.heroOverlayStat}>
-            96%
+            {heroContent.stat}
           </div>
         </div>
       </section>
@@ -102,12 +120,12 @@ export function LandingPage({ onSelectProduct, onLaunchStudio }: LandingPageProp
       {/* Sub-header / Catalog Controls */}
       <div className={styles.catalogSubHeader}>
         <div className={styles.catalogSubTitle}>
-          Eco Essentials Planet-Friendly
+          {activeCategory === 'apparel' ? 'Streetwear & Customized Apparel' : 'Eco Essentials Planet-Friendly'}
         </div>
 
         <div className={styles.catalogHeaderRow}>
           <h2 className={styles.catalogMainTitle}>
-            Bestselling <span className={styles.titleSerif}>✧ Products</span>
+            Bestselling <span className={styles.titleSerif}>✧ {activeCategory === 'apparel' ? 'Apparel' : 'Furniture'}</span>
           </h2>
 
           <div className={styles.catalogControls}>
@@ -138,7 +156,10 @@ export function LandingPage({ onSelectProduct, onLaunchStudio }: LandingPageProp
       {/* 4-Column Product Grid */}
       <div className={styles.productGrid}>
         {filteredProducts.map((product) => (
-          <div key={product.id} className={styles.card}>
+          <div
+            key={product.id}
+            className={`${styles.card} ${product.isDisabled ? styles.disabledCard : ''}`}
+          >
             <div
               className={styles.cardImageContainer}
               onClick={() => handleProductAction(product)}
@@ -150,7 +171,11 @@ export function LandingPage({ onSelectProduct, onLaunchStudio }: LandingPageProp
               />
 
               {product.badge && (
-                <span className={styles.cardBadgePill}>{product.badge}</span>
+                <span
+                  className={`${styles.cardBadgePill} ${product.isDisabled ? styles.disabledBadgePill : ''}`}
+                >
+                  {product.badge}
+                </span>
               )}
             </div>
 
@@ -166,16 +191,28 @@ export function LandingPage({ onSelectProduct, onLaunchStudio }: LandingPageProp
                 ))}
               </div>
 
-              <h3 className={styles.cardTitle}>{product.name}</h3>
+              <h3
+                className={styles.cardTitle}
+                onClick={() => handleProductAction(product)}
+              >
+                {product.name}
+              </h3>
 
               <div className={styles.cardBottomRow}>
                 <span className={styles.cardPrice}>${product.price.toFixed(2)}</span>
 
                 <button
-                  className={styles.actionPillBtn}
-                  onClick={() => handleProductAction(product)}
+                  className={`${styles.actionPillBtn} ${product.isDisabled ? styles.disabledPillBtn : ''}`}
+                  disabled={product.isDisabled}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!product.isDisabled) {
+                      setCartCount((prev) => prev + 1);
+                      handleProductAction(product);
+                    }
+                  }}
                 >
-                  <span>+ Customize</span>
+                  <span>{product.isDisabled ? 'Disabled' : '+ Cart'}</span>
                 </button>
               </div>
             </div>
@@ -186,18 +223,21 @@ export function LandingPage({ onSelectProduct, onLaunchStudio }: LandingPageProp
       {/* Secondary Full-Width Interior Showcase */}
       <section className={styles.interiorShowcase}>
         <img
-          src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1600&auto=format&fit=crop"
-          alt="Modern Interior Design Showcase"
+          src={
+            activeCategory === 'apparel'
+              ? 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&auto=format&fit=crop'
+              : 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1600&auto=format&fit=crop'
+          }
+          alt="Showcase Banner"
         />
       </section>
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <div>© 2026 Homedine 3D Configurator Store. All rights reserved.</div>
+        <div>© 2026 Homedine Store. All rights reserved.</div>
         <div style={{ display: 'flex', gap: '1.5rem' }}>
           <a onClick={() => setActiveCategory('apparel')} style={{ cursor: 'pointer', color: '#9ca3af' }}>Apparel</a>
           <a onClick={() => setActiveCategory('furniture')} style={{ cursor: 'pointer', color: '#9ca3af' }}>Furniture</a>
-          <a onClick={onLaunchStudio} style={{ cursor: 'pointer', color: '#9ca3af' }}>3D Studio</a>
         </div>
       </footer>
     </div>

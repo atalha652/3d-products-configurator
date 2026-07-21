@@ -1,4 +1,4 @@
-/* Exact Reference Layout - Luxury Dark Theme */
+/* Exact Reference Layout - Luxury Dark Theme - Full Width */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 .container {
@@ -6,9 +6,8 @@
   background-color: #0c0d10;
   color: #f3f4f6;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  padding: 1.5rem 2.5rem;
-  max-width: 1440px;
-  margin: 0 auto;
+  padding: 1.5rem 4rem;
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -59,7 +58,7 @@
 
 .brandLogo {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 2.1rem;
+  font-size: 2.2rem;
   font-style: italic;
   font-weight: 600;
   color: #ffffff;
@@ -67,19 +66,6 @@
   text-align: center;
   cursor: pointer;
   user-select: none;
-}
-
-.brandLogo span {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-style: normal;
-  font-size: 0.8rem;
-  font-weight: 700;
-  background: #3b82f6;
-  color: #fff;
-  padding: 0.15rem 0.45rem;
-  border-radius: 0.3rem;
-  margin-left: 0.4rem;
-  vertical-align: middle;
 }
 
 .rightNav {
@@ -153,7 +139,7 @@
 .heroBanner {
   position: relative;
   width: 100%;
-  height: 520px;
+  height: 540px;
   border-radius: 1.5rem;
   overflow: hidden;
   margin: 1.5rem 0 3rem;
@@ -165,14 +151,15 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.75) contrast(1.1);
+  filter: brightness(0.7) contrast(1.1);
+  transition: all 0.5s ease-in-out;
 }
 
 .heroOverlayLeft {
   position: absolute;
-  top: 3.5rem;
-  left: 3.5rem;
-  max-width: 480px;
+  top: 4rem;
+  left: 4rem;
+  max-width: 520px;
   z-index: 2;
 }
 
@@ -186,7 +173,7 @@
 
 .heroMainHeading {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 3.4rem;
+  font-size: 3.6rem;
   line-height: 1.08;
   font-weight: 500;
   color: #ffffff;
@@ -202,31 +189,9 @@
 .heroSubtext {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 2rem;
-  max-width: 400px;
-}
-
-.shopNowBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: #ffffff;
-  color: #0d0e12;
-  font-weight: 700;
-  font-size: 0.9rem;
-  padding: 0.75rem 1.6rem;
-  border-radius: 9999px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.shopNowBtn:hover {
-  background: #f3f4f6;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 0;
+  max-width: 440px;
 }
 
 .heroOverlayRight {
@@ -377,6 +342,31 @@
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
 }
 
+/* Disabled Card - No Hover Animations or Pointer Cursors */
+.disabledCard {
+  opacity: 0.5;
+  filter: grayscale(0.5);
+  cursor: not-allowed !important;
+}
+
+.disabledCard:hover {
+  transform: none !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+
+.disabledCard .cardImageContainer {
+  cursor: not-allowed !important;
+}
+
+.disabledCard:hover .cardImage {
+  transform: none !important;
+}
+
+.disabledCard .cardTitle {
+  cursor: not-allowed !important;
+}
+
 .cardImageContainer {
   position: relative;
   width: 100%;
@@ -409,6 +399,12 @@
   font-weight: 500;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
+}
+
+.disabledBadgePill {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
 }
 
 .cardContent {
@@ -478,11 +474,22 @@
   transform: scale(1.03);
 }
 
+.disabledPillBtn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
+  cursor: not-allowed !important;
+}
+
+.disabledPillBtn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: none !important;
+}
+
 /* Secondary Interior Showcase Section */
 .interiorShowcase {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 440px;
   border-radius: 1.5rem;
   overflow: hidden;
   margin-bottom: 3rem;
