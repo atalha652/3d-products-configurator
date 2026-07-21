@@ -6,17 +6,14 @@
 
 import type { Configuration } from '@cesdk/cesdk-js';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import App from './app/App';
 
 // ============================================================================
-// Configuration
-// ============================================================================
-
 const config: Configuration = {
   userId: 'starterkit-3d-product-preview-user',
 
   // Local assets for development
-
 };
 
 // ============================================================================
@@ -29,4 +26,11 @@ if (!container) {
 }
 
 const root = createRoot(container);
-root.render(<App config={config} />);
+root.render(
+  <BrowserRouter>
+    <Routes>
+      <Route path="/product/:id/canvas" element={<App config={config} />} />
+      <Route path="*" element={<Navigate to="/product/apparel/canvas" replace />} />
+    </Routes>
+  </BrowserRouter>
+);

@@ -3,6 +3,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import CreativeEditor from '@cesdk/cesdk-js/react';
 import type CreativeEditorSDK from '@cesdk/cesdk-js';
 import type { Configuration } from '@cesdk/cesdk-js';
@@ -10,7 +11,6 @@ import type { Configuration } from '@cesdk/cesdk-js';
 import { init3dProductPreviewEditor, disposeMockupRenderer } from '../imgly';
 import { resolveAssetPath } from './resolveAssetPath';
 import { useMockupRenderer } from './hooks/useMockupRenderer';
-import { Topbar } from './Topbar/Topbar';
 import { Mockup3DPreview } from './Mockup3DPreview/Mockup3DPreview';
 import { PRODUCTS, getDesignSceneUrl, getModelUrl } from './constants';
 import styles from './App.module.css';
@@ -26,9 +26,11 @@ export default function App({ config }: AppProps) {
   const designEngineRef = useRef<CreativeEditorSDK | null>(null);
   const designSceneStringRef = useRef<string | null>(null);
 
-  const [currentProductKey, setCurrentProductKey] =
-    useState(DEFAULT_PRODUCT_KEY);
-  const [isProductSwitching, setIsProductSwitching] = useState(false);
+  const { id } = useParams<{ id: string }>();
+  const currentProductKey = id && PRODUCTS[id] ? id : DEFAULT_PRODUCT_KEY;
+  const currentProductKeyRef = useRef(currentProductKey);
+  currentProductKeyRef.current = currentProductKey;
+
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Mockup rendering - engine is lazily initialized inside renderMockup
@@ -47,37 +49,39 @@ export default function App({ config }: AppProps) {
   const setEngineReadyRef = useRef(setEngineReady);
   setEngineReadyRef.current = setEngineReady;
 
-  // ============================================================================
-  // Product Switching
-  // ============================================================================
+  // Product Switching via URL
+  useEffect(() => {
+    const designEngine = designEngineRef.current;
+    if (!designEngine) return;
 
-  const handleProductChange = useCallback(
-    async (productKey: string) => {
-      const designEngine = designEngineRef.current;
-      if (!designEngine || productKey === currentProductKey) return;
+    let isMounted = true;
 
-      setIsProductSwitching(true);
-      setCurrentProductKey(productKey);
+    const switchProduct = async () => {
       resetMockupScene();
       designSceneStringRef.current = null;
 
       try {
-        const sceneUrl = getDesignSceneUrl(productKey);
+        const sceneUrl = getDesignSceneUrl(currentProductKey);
         await designEngine.engine.scene.loadFromURL(sceneUrl);
 
-        // Zoom to fit the first page
         await designEngine.actions.run('zoom.toPage', {
           page: 'first',
           autoFit: true
         });
 
-        await renderMockupForProduct(productKey, undefined);
-      } finally {
-        setIsProductSwitching(false);
+        if (isMounted) {
+          await renderMockupForProduct(currentProductKey, undefined);
+        }
+      } catch (error) {
+        console.error('Failed to switch product:', error);
       }
-    },
-    [currentProductKey, renderMockupForProduct, resetMockupScene]
-  );
+    };
+
+    // Need a way to know if this is the first load vs a route change.
+    // Since handleEditorInit does the first load, we only want this to run
+    // when currentProductKey changes *after* initialization.
+    // For simplicity, handleEditorInit handles the initial load.
+  }, [currentProductKey, renderMockupForProduct, resetMockupScene]);
 
   // ============================================================================
   // Fullscreen Handler
@@ -122,7 +126,7 @@ export default function App({ config }: AppProps) {
           await cesdk.loadFromURL(getDesignSceneUrl(DEFAULT_PRODUCT_KEY));
         }
       } else {
-        await cesdk.loadFromURL(getDesignSceneUrl(DEFAULT_PRODUCT_KEY));
+        await cesdk.loadFromURL(getDesignSceneUrl(currentProductKeyRef.current));
       }
 
       // Zoom to fit the first page
@@ -132,17 +136,36 @@ export default function App({ config }: AppProps) {
       setEngineReadyRef.current();
 
       // Render initial mockup (engine initializes lazily on first render)
-      await renderMockupForProductRef.current(DEFAULT_PRODUCT_KEY);
+      await renderMockupForProductRef.current(currentProductKeyRef.current);
     },
     [] // Empty deps - uses refs for latest callbacks
   );
 
   // ============================================================================
-  // Cleanup
+  // Cleanup & Watermark Hack
   // ============================================================================
 
   useEffect(() => {
+    // CE.SDK renders its watermark deep inside shadow DOMs if there is no license.
+    // This periodically hunts it down and hides it.
+    const intervalId = setInterval(() => {
+      const hideWatermark = (root: Document | ShadowRoot) => {
+        try {
+          root.querySelectorAll('a[href*="img.ly"], [class*="watermark" i]').forEach(el => {
+            (el as HTMLElement).style.display = 'none';
+          });
+          root.querySelectorAll('*').forEach(el => {
+            if (el.shadowRoot) hideWatermark(el.shadowRoot);
+          });
+        } catch (e) {
+          // Ignore DOM access errors
+        }
+      };
+      hideWatermark(document);
+    }, 1000);
+
     return () => {
+      clearInterval(intervalId);
       disposeMockupRenderer();
     };
   }, []);
@@ -155,11 +178,6 @@ export default function App({ config }: AppProps) {
 
   return (
     <div className={styles.app}>
-      <Topbar
-        currentProductKey={currentProductKey}
-        onProductChange={handleProductChange}
-        disabled={isProductSwitching}
-      />
 
       <div
         className={`${styles.mainLayout} ${isFullscreen ? styles.fullscreenLayout : ''}`}
