@@ -29,3 +29,11 @@ tsconfig.local.json
 
 # Lock files (use npm ci in CI)
 yarn.lock
+
+# CE.SDK Assets (downloaded from zip)
+public/assets/core/
+public/assets/emoji/
+public/assets/fonts/
+public/assets/i18n/
+public/assets/ui/
+public/assets/ly.img.*/

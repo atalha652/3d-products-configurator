@@ -107,13 +107,14 @@
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 :global(#root) {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
 }
 
 /* ============================================================================
@@ -123,11 +124,11 @@
 :global(:root) {
   --primary-color: #3d5cf5;
   --primary-hover: #6a82ff;
-  --bg-color: #f5f5f5;
-  --border-color: #e2e8f0;
-  --text-color: #121a21;
-  --surface-color: #ffffff;
-  --mockup-bg: #d6dbe1;
+  --bg-color: #0f1115;
+  --border-color: #2b2d31;
+  --text-color: #ffffff;
+  --surface-color: #1a1c21;
+  --mockup-bg: #2a2d33;
 }
 
 /* ============================================================================
@@ -138,12 +139,12 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   gap: 0;
   padding: 0;
   margin: 0;
-  overflow: auto;
-  overscroll-behavior: auto;
+  overflow: hidden;
+  overscroll-behavior: none;
   font-family:
     system-ui,
     -apple-system,
@@ -201,4 +202,17 @@
   overflow: hidden;
   width: 100%;
   height: 100%;
+}
+
+/* ============================================================================
+   Hide IMG.LY Watermarks
+   ============================================================================ */
+
+:global(a[href*="img.ly"]),
+:global(a[href*="creative-sdk"]) {
+  display: none !important;
+}
+
+:global([class*="watermark" i]) {
+  display: none !important;
 }

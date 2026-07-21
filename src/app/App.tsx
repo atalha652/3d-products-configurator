@@ -3,6 +3,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import CreativeEditor from '@cesdk/cesdk-js/react';
 import type CreativeEditorSDK from '@cesdk/cesdk-js';
 import type { Configuration } from '@cesdk/cesdk-js';
@@ -10,12 +11,8 @@ import type { Configuration } from '@cesdk/cesdk-js';
 import { init3dProductPreviewEditor, disposeMockupRenderer } from '../imgly';
 import { resolveAssetPath } from './resolveAssetPath';
 import { useMockupRenderer } from './hooks/useMockupRenderer';
-import { Topbar } from './Topbar/Topbar';
 import { Mockup3DPreview } from './Mockup3DPreview/Mockup3DPreview';
 import { PRODUCTS, getDesignSceneUrl, getModelUrl } from './constants';
-import { LandingPage } from '../landing/LandingPage';
-import { ProductDetailPage } from '../landing/ProductDetailPage';
-import { ProductItem } from '../landing/catalog';
 import styles from './App.module.css';
 
 // Default product to load on startup
@@ -29,13 +26,11 @@ export default function App({ config }: AppProps) {
   const designEngineRef = useRef<CreativeEditorSDK | null>(null);
   const designSceneStringRef = useRef<string | null>(null);
 
-  // View state: 'landing' vs 'product-detail' vs 'editor'
-  const [activeView, setActiveView] = useState<'landing' | 'product-detail' | 'editor'>('landing');
-  const [selectedProductItem, setSelectedProductItem] = useState<ProductItem | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const currentProductKey = id && PRODUCTS[id] ? id : DEFAULT_PRODUCT_KEY;
+  const currentProductKeyRef = useRef(currentProductKey);
+  currentProductKeyRef.current = currentProductKey;
 
-  const [currentProductKey, setCurrentProductKey] =
-    useState(DEFAULT_PRODUCT_KEY);
-  const [isProductSwitching, setIsProductSwitching] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Mockup rendering - engine is lazily initialized inside renderMockup
@@ -54,54 +49,39 @@ export default function App({ config }: AppProps) {
   const setEngineReadyRef = useRef(setEngineReady);
   setEngineReadyRef.current = setEngineReady;
 
-  // ============================================================================
-  // Product Switching
-  // ============================================================================
+  // Product Switching via URL
+  useEffect(() => {
+    const designEngine = designEngineRef.current;
+    if (!designEngine) return;
 
-  const handleProductChange = useCallback(
-    async (productKey: string) => {
-      const designEngine = designEngineRef.current;
-      if (!designEngine) {
-        setCurrentProductKey(productKey);
-        return;
-      }
+    let isMounted = true;
 
-      if (productKey === currentProductKey) return;
-
-      setIsProductSwitching(true);
-      setCurrentProductKey(productKey);
+    const switchProduct = async () => {
       resetMockupScene();
       designSceneStringRef.current = null;
 
       try {
-        const sceneUrl = getDesignSceneUrl(productKey);
+        const sceneUrl = getDesignSceneUrl(currentProductKey);
         await designEngine.engine.scene.loadFromURL(sceneUrl);
 
-        // Zoom to fit the first page
         await designEngine.actions.run('zoom.toPage', {
           page: 'first',
           autoFit: true
         });
 
-        await renderMockupForProduct(productKey, undefined);
-      } finally {
-        setIsProductSwitching(false);
+        if (isMounted) {
+          await renderMockupForProduct(currentProductKey, undefined);
+        }
+      } catch (error) {
+        console.error('Failed to switch product:', error);
       }
-    },
-    [currentProductKey, renderMockupForProduct, resetMockupScene]
-  );
+    };
 
-  // Handler when a user selects a product item from Landing Page
-  const handleSelectProductItem = useCallback(
-    (product: ProductItem) => {
-      setSelectedProductItem(product);
-      if (product.configuratorKey && PRODUCTS[product.configuratorKey]) {
-        setCurrentProductKey(product.configuratorKey);
-      }
-      setActiveView('product-detail');
-    },
-    []
-  );
+    // Need a way to know if this is the first load vs a route change.
+    // Since handleEditorInit does the first load, we only want this to run
+    // when currentProductKey changes *after* initialization.
+    // For simplicity, handleEditorInit handles the initial load.
+  }, [currentProductKey, renderMockupForProduct, resetMockupScene]);
 
   // ============================================================================
   // Fullscreen Handler
@@ -146,7 +126,7 @@ export default function App({ config }: AppProps) {
           await cesdk.loadFromURL(getDesignSceneUrl(DEFAULT_PRODUCT_KEY));
         }
       } else {
-        await cesdk.loadFromURL(getDesignSceneUrl(DEFAULT_PRODUCT_KEY));
+        await cesdk.loadFromURL(getDesignSceneUrl(currentProductKeyRef.current));
       }
 
       // Zoom to fit the first page
@@ -156,17 +136,36 @@ export default function App({ config }: AppProps) {
       setEngineReadyRef.current();
 
       // Render initial mockup (engine initializes lazily on first render)
-      await renderMockupForProductRef.current(DEFAULT_PRODUCT_KEY);
+      await renderMockupForProductRef.current(currentProductKeyRef.current);
     },
     [] // Empty deps - uses refs for latest callbacks
   );
 
   // ============================================================================
-  // Cleanup
+  // Cleanup & Watermark Hack
   // ============================================================================
 
   useEffect(() => {
+    // CE.SDK renders its watermark deep inside shadow DOMs if there is no license.
+    // This periodically hunts it down and hides it.
+    const intervalId = setInterval(() => {
+      const hideWatermark = (root: Document | ShadowRoot) => {
+        try {
+          root.querySelectorAll('a[href*="img.ly"], [class*="watermark" i]').forEach(el => {
+            (el as HTMLElement).style.display = 'none';
+          });
+          root.querySelectorAll('*').forEach(el => {
+            if (el.shadowRoot) hideWatermark(el.shadowRoot);
+          });
+        } catch (e) {
+          // Ignore DOM access errors
+        }
+      };
+      hideWatermark(document);
+    }, 1000);
+
     return () => {
+      clearInterval(intervalId);
       disposeMockupRenderer();
     };
   }, []);
@@ -175,78 +174,33 @@ export default function App({ config }: AppProps) {
   // Render
   // ============================================================================
 
-  const product = PRODUCTS[currentProductKey] || PRODUCTS[DEFAULT_PRODUCT_KEY];
+  const product = PRODUCTS[currentProductKey];
 
   return (
     <div className={styles.app}>
-      {/* Landing Page View */}
-      {activeView === 'landing' && (
-        <LandingPage
-          onSelectProductItem={handleSelectProductItem}
-          onLaunchStudio={() => setActiveView('editor')}
-        />
-      )}
 
-      {/* Product Detail / Checkout Page View */}
-      {activeView === 'product-detail' && selectedProductItem && (
-        <ProductDetailPage
-          product={selectedProductItem}
-          onBack={() => setActiveView('landing')}
-          onOpen3DStudio={async (configKey) => {
-            setActiveView('editor');
-            if (PRODUCTS[configKey] && configKey !== currentProductKey) {
-              await handleProductChange(configKey);
-            }
-          }}
-        />
-      )}
-
-      {/* 3D Configurator Studio View */}
       <div
-        style={{
-          display: activeView === 'editor' ? 'flex' : 'none',
-          flexDirection: 'column',
-          width: '100%',
-          height: '100vh',
-          overflow: 'hidden'
-        }}
+        className={`${styles.mainLayout} ${isFullscreen ? styles.fullscreenLayout : ''}`}
       >
-        <Topbar
-          currentProductKey={currentProductKey}
-          onProductChange={handleProductChange}
-          disabled={isProductSwitching}
-          onBackToStore={() => {
-            if (selectedProductItem) {
-              setActiveView('product-detail');
-            } else {
-              setActiveView('landing');
-            }
-          }}
+        <Mockup3DPreview
+          mockupImageUrl={mockupImageUrl}
+          modelUrl={resolveAssetPath(getModelUrl(currentProductKey))}
+          cameraOrbit={product.cameraOrbit}
+          baseColorTextureIndex={product.baseColorTextureIndex}
+          isLoading={isLoading}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={handleToggleFullscreen}
         />
 
-        <div
-          className={`${styles.mainLayout} ${isFullscreen ? styles.fullscreenLayout : ''}`}
-        >
-          <Mockup3DPreview
-            mockupImageUrl={mockupImageUrl}
-            modelUrl={resolveAssetPath(getModelUrl(currentProductKey))}
-            cameraOrbit={product.cameraOrbit}
-            baseColorTextureIndex={product.baseColorTextureIndex}
-            isLoading={isLoading}
-            isFullscreen={isFullscreen}
-            onToggleFullscreen={handleToggleFullscreen}
-          />
-
-          {!isFullscreen && (
-            <div className={styles.editorWrapper}>
-              <CreativeEditor
-                className={styles.editor}
-                config={config}
-                init={handleEditorInit}
-              />
-            </div>
-          )}
-        </div>
+        {!isFullscreen && (
+          <div className={styles.editorWrapper}>
+            <CreativeEditor
+              className={styles.editor}
+              config={config}
+              init={handleEditorInit}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

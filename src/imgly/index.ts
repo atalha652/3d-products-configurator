@@ -88,6 +88,6 @@ export async function init3dProductPreviewEditor(
     })
   );
 
-  cesdk.ui.setTheme('light');
+  cesdk.ui.setTheme('dark');
   cesdk.engine.editor.setRole('Creator');
 }
