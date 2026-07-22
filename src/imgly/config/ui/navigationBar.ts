@@ -76,14 +76,25 @@ export function setupNavigationBar(cesdk: CreativeEditorSDK): void {
     'ly.img.preview.navigationBar',
 
     // ============================
-    // Actions Dropdown - Export Options
+    // Export Image (accent CTA)
+    // ============================
+    {
+      id: 'ly.img.action.navigationBar',
+      key: 'export-image',
+      label: 'Export Image',
+      icon: '@imgly/Download',
+      color: 'accent',
+      onClick: async () => {
+        await cesdk.actions.run('exportImage');
+      }
+    },
+
+    // ============================
+    // Actions Dropdown - Other Export Options
     // ============================
     {
       id: 'ly.img.actions.navigationBar',
-      children: [
-        'ly.img.exportImage.navigationBar',
-        'ly.img.exportPDF.navigationBar'
-      ]
+      children: ['ly.img.exportPDF.navigationBar']
     }
   ]);
   // #endregion

@@ -122,8 +122,9 @@
    ============================================================================ */
 
 :global(:root) {
-  --primary-color: #3d5cf5;
-  --primary-hover: #6a82ff;
+  --primary-color: #ffffff;
+  --primary-hover: #f3f4f6;
+  --primary-text: #0c0d10;
   --bg-color: #0f1115;
   --border-color: #2b2d31;
   --text-color: #ffffff;
@@ -131,11 +132,20 @@
   --mockup-bg: #2a2d33;
 }
 
+/* CE.SDK accent buttons (Export Image) → project theme CTAs */
+:global(.ubq-public[data-ubq-theme='dark']) {
+  --ubq-interactive-accent-default: var(--primary-color) !important;
+  --ubq-interactive-accent-hover: var(--primary-hover) !important;
+  --ubq-interactive-accent-pressed: #e5e7eb !important;
+  --ubq-foreground-accent: var(--primary-text) !important;
+}
+
 /* ============================================================================
    App Container
    ============================================================================ */
 
 .app {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -155,6 +165,40 @@
   color: #f3f4f6;
 }
 
+/* ============================================================================
+   App Header / Back Button
+   ============================================================================ */
+
+.appHeader {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0c0d10;
+  z-index: 50;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(-2px);
+}
+
 
 
 /* ============================================================================
@@ -167,6 +211,176 @@
   flex-grow: 1;
   min-height: min(600px, 100%);
   gap: 1rem;
+}
+
+/* ============================================================================
+   Page Skeleton Loader
+   ============================================================================ */
+
+.pageSkeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 1rem;
+  padding: 0;
+  background: #0c0d10;
+}
+
+.skeletonShimmer {
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 45%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.06) 55%,
+    transparent 100%
+  );
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes skeletonShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeletonPreview {
+  position: relative;
+  overflow: hidden;
+  width: 45vw;
+  min-width: 450px;
+  min-height: 600px;
+  max-height: calc(100vh - 40px);
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: #2a2d33;
+}
+
+.skeletonPreviewBody {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2.5rem;
+}
+
+.skeletonModel {
+  width: min(58%, 320px);
+  aspect-ratio: 3 / 4;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.skeletonPreviewControls {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+}
+
+.skeletonEditor {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1fr 220px;
+  grid-template-rows: 56px 1fr;
+  gap: 12px;
+  margin: 0 12px 12px;
+  padding: 12px;
+  border-radius: 0.75rem;
+  background: #16181d;
+  box-shadow:
+    0px 0px 2px rgba(22, 22, 23, 0.25),
+    0px 4px 6px -2px rgba(22, 22, 23, 0.12);
+}
+
+.skeletonToolbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.5rem;
+}
+
+.skeletonCanvas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #0f1115;
+}
+
+.skeletonPage {
+  width: min(42%, 280px);
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.skeletonSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #12141a;
+}
+
+.skeletonChip,
+.skeletonChipWide,
+.skeletonBlock,
+.skeletonBlockShort {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.skeletonChip {
+  width: 72px;
+  height: 28px;
+}
+
+.skeletonChipWide {
+  width: 120px;
+  height: 28px;
+  margin-left: auto;
+}
+
+.skeletonBlock {
+  height: 72px;
+}
+
+.skeletonBlockShort {
+  height: 40px;
+}
+
+@media (max-width: 960px) {
+  .pageSkeleton {
+    flex-direction: column;
+  }
+
+  .skeletonPreview {
+    width: 100%;
+    min-width: 0;
+    min-height: 280px;
+    max-height: 40vh;
+  }
+
+  .skeletonEditor {
+    grid-template-columns: 1fr;
+    grid-template-rows: 56px 1fr;
+    margin: 0 8px 8px;
+  }
+
+  .skeletonSidebar {
+    display: none;
+  }
 }
 
 /* ============================================================================

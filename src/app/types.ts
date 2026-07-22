@@ -31,6 +31,7 @@ declare global {
         React.HTMLAttributes<HTMLElement> & {
           src?: string;
           'camera-controls'?: boolean;
+          'disable-zoom'?: boolean;
           'camera-orbit'?: string;
           'shadow-intensity'?: string;
         },

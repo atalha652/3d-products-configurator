@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   HiOutlineShoppingBag,
   HiOutlineBolt,
@@ -11,7 +11,29 @@ import { ProductItem } from './catalog';
 import { PRODUCTS, getModelUrl } from '../app/constants';
 import { resolveAssetPath } from '../app/resolveAssetPath';
 import type { ModelViewerElement } from '../app/types';
+import { Modal } from './Modal';
+import modalStyles from './Modal.module.css';
 import styles from './ProductDetailPage.module.css';
+
+type ActiveModal = 'cart' | 'checkout' | 'orderSuccess' | null;
+
+interface CheckoutFormState {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+}
+
+const INITIAL_CHECKOUT: CheckoutFormState = {
+  fullName: '',
+  email: '',
+  phone: '',
+  address: '',
+  city: '',
+  postalCode: ''
+};
 
 interface ProductDetailPageProps {
   product: ProductItem;
@@ -34,7 +56,9 @@ export function ProductDetailPage({
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState('M');
-  const [cartAdded, setCartAdded] = useState(false);
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+  const [checkout, setCheckout] = useState<CheckoutFormState>(INITIAL_CHECKOUT);
+  const [cartCount, setCartCount] = useState(0);
   const modelViewerRef = useRef<ModelViewerElement>(null);
 
   const gallery =
@@ -55,9 +79,28 @@ export function ProductDetailPage({
     modelViewer.jumpCameraToGoal?.();
   }, [product3D]);
 
+  const closeModal = () => setActiveModal(null);
+
   const handleAddToCart = () => {
-    setCartAdded(true);
-    setTimeout(() => setCartAdded(false), 2000);
+    setCartCount((count) => count + 1);
+    setActiveModal('cart');
+  };
+
+  const handleBuyNow = () => {
+    setCheckout(INITIAL_CHECKOUT);
+    setActiveModal('checkout');
+  };
+
+  const handleCheckoutChange = (
+    field: keyof CheckoutFormState,
+    value: string
+  ) => {
+    setCheckout((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePlaceOrder = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setActiveModal('orderSuccess');
   };
 
   return (
@@ -69,10 +112,46 @@ export function ProductDetailPage({
         </button>
 
         <div className={styles.brandLogo} onClick={onBack}>
-          Homedine
+          Studio Tee
         </div>
 
-        <div style={{ width: '120px' }} />
+        <div className={styles.headerActions}>
+          <button
+            type="button"
+            className={styles.circleIconBtn}
+            onClick={() => {
+              if (cartCount > 0) setActiveModal('cart');
+            }}
+            title="Shopping Cart"
+          >
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+              />
+            </svg>
+            {cartCount > 0 && (
+              <span className={styles.cartBadge}>{cartCount}</span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            className={styles.circleIconBtn}
+            title="User Profile"
+          >
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+          </button>
+        </div>
       </header>
 
       {/* Product Grid */}
@@ -85,6 +164,7 @@ export function ProductDetailPage({
                 ref={modelViewerRef as React.RefObject<HTMLElement>}
                 src={modelUrl}
                 camera-controls
+                {...(product.id === 'apparel-tshirt' ? { 'disable-zoom': true } : {})}
                 camera-orbit={product3D.cameraOrbit}
                 shadow-intensity="1"
                 className={styles.product3DViewer}
@@ -227,20 +307,11 @@ export function ProductDetailPage({
 
             <div className={styles.secondaryActions}>
               <button className={styles.cartBtn} onClick={handleAddToCart}>
-                {cartAdded ? (
-                  <>
-                    <HiOutlineCheck className={styles.btnIcon} aria-hidden />
-                    <span>Added to Cart</span>
-                  </>
-                ) : (
-                  <>
-                    <HiOutlineShoppingBag className={styles.btnIcon} aria-hidden />
-                    <span>Add to Cart</span>
-                  </>
-                )}
+                <HiOutlineShoppingBag className={styles.btnIcon} aria-hidden />
+                <span>Add to Cart</span>
               </button>
 
-              <button className={styles.buyBtn} onClick={handleAddToCart}>
+              <button className={styles.buyBtn} onClick={handleBuyNow}>
                 <HiOutlineBolt className={styles.btnIcon} aria-hidden />
                 <span>Buy Now</span>
               </button>
@@ -248,6 +319,205 @@ export function ProductDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Add to Cart success */}
+      <Modal
+        isOpen={activeModal === 'cart'}
+        onClose={closeModal}
+        title="Cart Updated"
+        footer={
+          <button
+            type="button"
+            className={modalStyles.primaryBtn}
+            onClick={closeModal}
+          >
+            Continue Shopping
+          </button>
+        }
+      >
+        <div className={modalStyles.successState}>
+          <div className={modalStyles.successIconWrap}>
+            <HiOutlineCheck className={modalStyles.successIcon} aria-hidden />
+          </div>
+          <p className={modalStyles.successMessage}>
+            Added to cart successfully
+          </p>
+          <p className={modalStyles.successHint}>
+            {product.name}
+            {product.category === 'apparel' ? ` · Size ${selectedSize}` : ''} · $
+            {product.price.toFixed(2)}
+          </p>
+        </div>
+      </Modal>
+
+      {/* Buy Now checkout */}
+      <Modal
+        isOpen={activeModal === 'checkout'}
+        onClose={closeModal}
+        title="Checkout"
+        footer={
+          <>
+            <button
+              type="submit"
+              form="buy-now-checkout-form"
+              className={modalStyles.primaryBtn}
+            >
+              Place Order
+            </button>
+            <button
+              type="button"
+              className={modalStyles.secondaryBtn}
+              onClick={closeModal}
+            >
+              Cancel
+            </button>
+          </>
+        }
+      >
+        <p className={modalStyles.orderSummary}>
+          Ordering <strong>{product.name}</strong>
+          {product.category === 'apparel' ? (
+            <>
+              {' '}
+              · Size <strong>{selectedSize}</strong>
+            </>
+          ) : null}{' '}
+          · <strong>${product.price.toFixed(2)}</strong>
+        </p>
+
+        <form
+          id="buy-now-checkout-form"
+          className={modalStyles.form}
+          onSubmit={handlePlaceOrder}
+        >
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label} htmlFor="checkout-fullName">
+              Full name
+            </label>
+            <input
+              id="checkout-fullName"
+              className={modalStyles.input}
+              type="text"
+              required
+              autoComplete="name"
+              placeholder="Your full name"
+              value={checkout.fullName}
+              onChange={(e) => handleCheckoutChange('fullName', e.target.value)}
+            />
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label} htmlFor="checkout-email">
+              Email
+            </label>
+            <input
+              id="checkout-email"
+              className={modalStyles.input}
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              value={checkout.email}
+              onChange={(e) => handleCheckoutChange('email', e.target.value)}
+            />
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label} htmlFor="checkout-phone">
+              Phone
+            </label>
+            <input
+              id="checkout-phone"
+              className={modalStyles.input}
+              type="tel"
+              required
+              autoComplete="tel"
+              placeholder="+1 555 000 0000"
+              value={checkout.phone}
+              onChange={(e) => handleCheckoutChange('phone', e.target.value)}
+            />
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label} htmlFor="checkout-address">
+              Shipping address
+            </label>
+            <textarea
+              id="checkout-address"
+              className={modalStyles.textarea}
+              required
+              autoComplete="street-address"
+              placeholder="Street address, apartment, suite"
+              value={checkout.address}
+              onChange={(e) => handleCheckoutChange('address', e.target.value)}
+            />
+          </div>
+
+          <div className={modalStyles.row}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label} htmlFor="checkout-city">
+                City
+              </label>
+              <input
+                id="checkout-city"
+                className={modalStyles.input}
+                type="text"
+                required
+                autoComplete="address-level2"
+                placeholder="City"
+                value={checkout.city}
+                onChange={(e) => handleCheckoutChange('city', e.target.value)}
+              />
+            </div>
+
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label} htmlFor="checkout-postal">
+                Postal code
+              </label>
+              <input
+                id="checkout-postal"
+                className={modalStyles.input}
+                type="text"
+                required
+                autoComplete="postal-code"
+                placeholder="ZIP / Postal"
+                value={checkout.postalCode}
+                onChange={(e) =>
+                  handleCheckoutChange('postalCode', e.target.value)
+                }
+              />
+            </div>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Order placed success */}
+      <Modal
+        isOpen={activeModal === 'orderSuccess'}
+        onClose={closeModal}
+        title="Order Confirmed"
+        footer={
+          <button
+            type="button"
+            className={modalStyles.primaryBtn}
+            onClick={closeModal}
+          >
+            Done
+          </button>
+        }
+      >
+        <div className={modalStyles.successState}>
+          <div className={modalStyles.successIconWrap}>
+            <HiOutlineCheck className={modalStyles.successIcon} aria-hidden />
+          </div>
+          <p className={modalStyles.successMessage}>
+            Your order has been placed successfully
+          </p>
+          <p className={modalStyles.successHint}>
+            We’ll send a confirmation to {checkout.email || 'your email'} shortly.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }

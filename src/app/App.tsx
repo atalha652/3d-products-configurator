@@ -3,7 +3,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CreativeEditor from '@cesdk/cesdk-js/react';
 import type CreativeEditorSDK from '@cesdk/cesdk-js';
 import type { Configuration } from '@cesdk/cesdk-js';
@@ -18,11 +18,17 @@ import styles from './App.module.css';
 // Default product to load on startup
 const DEFAULT_PRODUCT_KEY = 'apparel';
 
+/** Shop PDP routes keyed by configurator product id */
+const SHOP_ROUTE_BY_PRODUCT: Record<string, string> = {
+  apparel: '/shop/apparel-tshirt'
+};
+
 interface AppProps {
   config: Configuration;
 }
 
 export default function App({ config }: AppProps) {
+  const navigate = useNavigate();
   const designEngineRef = useRef<CreativeEditorSDK | null>(null);
   const designSceneStringRef = useRef<string | null>(null);
 
@@ -31,7 +37,12 @@ export default function App({ config }: AppProps) {
   const currentProductKeyRef = useRef(currentProductKey);
   currentProductKeyRef.current = currentProductKey;
 
+  const handleBackToShop = useCallback(() => {
+    navigate(SHOP_ROUTE_BY_PRODUCT[currentProductKey] ?? '/shop/apparel-tshirt');
+  }, [navigate, currentProductKey]);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPageReady, setIsPageReady] = useState(false);
 
   // Mockup rendering - engine is lazily initialized inside renderMockup
   const {
@@ -116,27 +127,33 @@ export default function App({ config }: AppProps) {
     async (cesdk: CreativeEditorSDK) => {
       designEngineRef.current = cesdk;
 
-      await init3dProductPreviewEditor(cesdk);
+      try {
+        await init3dProductPreviewEditor(cesdk);
 
-      const savedDesignScene = designSceneStringRef.current;
-      if (savedDesignScene) {
-        try {
-          await cesdk.engine.scene.loadFromString(savedDesignScene);
-        } catch {
-          await cesdk.loadFromURL(getDesignSceneUrl(DEFAULT_PRODUCT_KEY));
+        const savedDesignScene = designSceneStringRef.current;
+        if (savedDesignScene) {
+          try {
+            await cesdk.engine.scene.loadFromString(savedDesignScene);
+          } catch {
+            await cesdk.loadFromURL(getDesignSceneUrl(DEFAULT_PRODUCT_KEY));
+          }
+        } else {
+          await cesdk.loadFromURL(
+            getDesignSceneUrl(currentProductKeyRef.current)
+          );
         }
-      } else {
-        await cesdk.loadFromURL(getDesignSceneUrl(currentProductKeyRef.current));
+
+        // Zoom to fit the first page
+        await cesdk.actions.run('zoom.toPage', { page: 'first', autoFit: true });
+
+        // Signal that engine is ready for history subscriptions
+        setEngineReadyRef.current();
+
+        // Render initial mockup (engine initializes lazily on first render)
+        await renderMockupForProductRef.current(currentProductKeyRef.current);
+      } finally {
+        setIsPageReady(true);
       }
-
-      // Zoom to fit the first page
-      await cesdk.actions.run('zoom.toPage', { page: 'first', autoFit: true });
-
-      // Signal that engine is ready for history subscriptions
-      setEngineReadyRef.current();
-
-      // Render initial mockup (engine initializes lazily on first render)
-      await renderMockupForProductRef.current(currentProductKeyRef.current);
     },
     [] // Empty deps - uses refs for latest callbacks
   );
@@ -178,6 +195,49 @@ export default function App({ config }: AppProps) {
 
   return (
     <div className={styles.app}>
+      {!isFullscreen && (
+        <header className={styles.appHeader}>
+          <button
+            type="button"
+            className={styles.backBtn}
+            onClick={handleBackToShop}
+          >
+            ← Back to Product
+          </button>
+        </header>
+      )}
+
+      {!isPageReady && (
+        <div className={styles.pageSkeleton} aria-busy="true" aria-label="Loading canvas">
+          <div className={styles.skeletonPreview}>
+            <div className={styles.skeletonShimmer} />
+            <div className={styles.skeletonPreviewBody}>
+              <div className={styles.skeletonModel} />
+            </div>
+            <div className={styles.skeletonPreviewControls}>
+              <div className={styles.skeletonChip} />
+            </div>
+          </div>
+
+          <div className={styles.skeletonEditor}>
+            <div className={styles.skeletonShimmer} />
+            <div className={styles.skeletonToolbar}>
+              <div className={styles.skeletonChip} />
+              <div className={styles.skeletonChip} />
+              <div className={styles.skeletonChip} />
+              <div className={styles.skeletonChipWide} />
+            </div>
+            <div className={styles.skeletonCanvas}>
+              <div className={styles.skeletonPage} />
+            </div>
+            <div className={styles.skeletonSidebar}>
+              <div className={styles.skeletonBlock} />
+              <div className={styles.skeletonBlock} />
+              <div className={styles.skeletonBlockShort} />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         className={`${styles.mainLayout} ${isFullscreen ? styles.fullscreenLayout : ''}`}

@@ -58,7 +58,7 @@ export function LandingPage({ onSelectProductItem, onLaunchStudio }: LandingPage
         </ul>
 
         <div className={styles.brandLogo} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          Homedine
+          Studio Tee
         </div>
 
         <div className={styles.rightNav}>
@@ -234,7 +234,7 @@ export function LandingPage({ onSelectProductItem, onLaunchStudio }: LandingPage
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <div>© 2026 Homedine Store. All rights reserved.</div>
+        <div>© 2026 Studio Tee. All rights reserved.</div>
         <div style={{ display: 'flex', gap: '1.5rem' }}>
           <a onClick={() => setActiveCategory('apparel')} style={{ cursor: 'pointer', color: '#9ca3af' }}>Apparel</a>
           <a onClick={() => setActiveCategory('furniture')} style={{ cursor: 'pointer', color: '#9ca3af' }}>Furniture</a>
