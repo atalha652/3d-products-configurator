@@ -103,6 +103,25 @@ export function Mockup3DPreview({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, onToggleFullscreen]);
 
+  // Suppress model-viewer focus outline (drawn on .userInput inside shadow DOM)
+  useEffect(() => {
+    const modelViewer = modelViewerRef.current;
+    if (!modelViewer?.shadowRoot) return;
+
+    const styleId = 'mockup-focus-fix';
+    if (modelViewer.shadowRoot.getElementById(styleId)) return;
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .userInput:focus,
+      .userInput:focus-visible {
+        outline: none !important;
+      }
+    `;
+    modelViewer.shadowRoot.appendChild(style);
+  }, []);
+
   return (
     <div
       className={classNames(styles.preview, {
@@ -119,6 +138,7 @@ export function Mockup3DPreview({
       {/* 3D Model Viewer */}
       <model-viewer
         ref={modelViewerRef as React.RefObject<HTMLElement>}
+        className={styles.modelViewer}
         src={modelUrl}
         camera-controls
         camera-orbit={cameraOrbit}

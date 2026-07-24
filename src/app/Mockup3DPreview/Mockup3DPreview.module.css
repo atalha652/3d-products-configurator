@@ -46,6 +46,16 @@
   height: 100%;
 }
 
+/* Kill focus outline inside model-viewer shadow DOM (.userInput) */
+.preview :global(model-viewer):focus,
+.preview :global(model-viewer):focus-visible {
+  outline: none;
+}
+
+.preview :global(model-viewer)::part(default-progress-bar) {
+  display: none;
+}
+
 /* ============================================================================
    Loading Indicator
    ============================================================================ */
@@ -97,12 +107,20 @@
 }
 
 .preview:hover .controls {
-  background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
   opacity: 1;
 }
 
 .fullscreen .controls {
-  background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
   opacity: 1;
 }
 
@@ -127,23 +145,11 @@
 }
 
 .preview:hover .controlButton {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.5) 0%,
-      rgba(255, 255, 255, 0) 100%
-    ),
-    rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .controlButton:hover {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.7) 0%,
-      rgba(255, 255, 255, 0) 100%
-    ),
-    rgba(255, 255, 255, 0.95) !important;
+  background: rgba(255, 255, 255, 0.22) !important;
 }
 
 .controlButton:disabled {
