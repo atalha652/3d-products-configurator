@@ -17,5 +17,5 @@
     "jsx": "react-jsx"
   },
   "include": ["*.ts", "src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["*.mjs", "node_modules", "dist"]
+  "exclude": ["*.mjs", "node_modules", "dist", "src/imgly/**", "src/app/hooks/useMockupRenderer.ts"]
 }

@@ -132,14 +132,6 @@
   --mockup-bg: #2a2d33;
 }
 
-/* CE.SDK accent buttons (Export Image) → project theme CTAs */
-:global(.ubq-public[data-ubq-theme='dark']) {
-  --ubq-interactive-accent-default: var(--primary-color) !important;
-  --ubq-interactive-accent-hover: var(--primary-hover) !important;
-  --ubq-interactive-accent-pressed: #e5e7eb !important;
-  --ubq-foreground-accent: var(--primary-text) !important;
-}
-
 /* ============================================================================
    App Container
    ============================================================================ */
@@ -392,7 +384,7 @@
 }
 
 /* ============================================================================
-   CE.SDK Editor Wrapper
+   Fabric Editor Wrapper
    ============================================================================ */
 
 .editorWrapper {
@@ -416,17 +408,4 @@
   overflow: hidden;
   width: 100%;
   height: 100%;
-}
-
-/* ============================================================================
-   Hide IMG.LY Watermarks
-   ============================================================================ */
-
-:global(a[href*="img.ly"]),
-:global(a[href*="creative-sdk"]) {
-  display: none !important;
-}
-
-:global([class*="watermark" i]) {
-  display: none !important;
 }

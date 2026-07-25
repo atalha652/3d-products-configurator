@@ -15,7 +15,7 @@ import { resolveAssetPath } from './resolveAssetPath';
 export const DEFAULT_MAX_PLACEHOLDERS = 10;
 
 /** Default debounce interval for auto-refresh (ms) */
-export const DEFAULT_RENDER_DEBOUNCE_MS = 1500;
+export const DEFAULT_RENDER_DEBOUNCE_MS = 400;
 
 /** Default export dimensions for design pages */
 export const DEFAULT_EXPORT_WIDTH = 1048;

@@ -1,8 +1,8 @@
 /**
- * CE.SDK 3D Mockup Editor - 3D Preview Panel
+ * 3D Preview Panel
  *
  * Renders the 3D product mockup using Google's model-viewer component.
- * Applies the rendered texture to the 3D model material.
+ * Applies the design texture to the 3D model material.
  */
 
 import { useCallback, useEffect, useRef } from 'react';
