@@ -2,6 +2,8 @@
  * 3D Mockup Editor - Type Definitions
  */
 
+export type RgbaColor = [number, number, number, number];
+
 /**
  * Extended HTMLElement interface for Google's model-viewer web component.
  */
@@ -12,13 +14,17 @@ export interface ModelViewerElement extends HTMLElement {
         baseColorTexture: {
           setTexture: (texture: unknown) => void;
         };
+        setBaseColorFactor?: (color: RgbaColor) => void;
+        baseColorFactor?: RgbaColor;
       };
+      setBaseColorFactor?: (color: RgbaColor) => void;
     }>;
   };
   createTexture: (url: string) => Promise<unknown>;
   cameraOrbit: string;
   cameraControls: boolean;
   src: string;
+  scale?: string;
   jumpCameraToGoal?: () => void;
 }
 
@@ -34,6 +40,12 @@ declare global {
           'disable-zoom'?: boolean;
           'camera-orbit'?: string;
           'shadow-intensity'?: string;
+          'auto-rotate'?: boolean;
+          'interaction-prompt'?: string;
+          'touch-action'?: string;
+          exposure?: string;
+          alt?: string;
+          scale?: string;
         },
         HTMLElement
       >;

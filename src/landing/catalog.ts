@@ -58,7 +58,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     originalPrice: 45.00,
     rating: 4.8,
     reviewCount: 94,
-    badge: 'Coming Soon',
+    badge: '3D Configurable',
     description: 'Custom embroidered front panel with breathable eyelets and adjustable metallic snap closure.',
     imageUrl: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop',
     galleryImages: [
@@ -67,7 +67,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     colorSwatches: ['#09090b', '#27272a', '#71717a'],
     configuratorKey: 'cap',
     tags: ['Headwear', 'Accessories', 'Custom'],
-    isDisabled: true
+    isDisabled: false
   },
   {
     id: 'apparel-card',
@@ -76,7 +76,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     price: 19.99,
     rating: 4.9,
     reviewCount: 210,
-    badge: 'Coming Soon',
+    badge: '3D Configurable',
     description: 'Soft-touch velvet coated card stock with customizable high-end metallic foil embossed layout.',
     imageUrl: '/jackets/images.jpg',
     galleryImages: [
@@ -85,7 +85,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     colorSwatches: ['#1e1b4b', '#312e81', '#6366f1'],
     configuratorKey: 'businesscard',
     tags: ['Stationery', 'Branding', 'Print'],
-    isDisabled: true
+    isDisabled: false
   },
   {
     id: 'apparel-hoodie',
@@ -95,7 +95,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     originalPrice: 110.00,
     rating: 4.9,
     reviewCount: 76,
-    badge: 'Coming Soon',
+    badge: 'New',
     description: 'Heavy fleece lined dark hoodie with water-resistant coating, thumbhole cuffs, and high collar.',
     imageUrl: '/jackets/jacket.jpg',
     galleryImages: [
@@ -103,7 +103,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     ],
     colorSwatches: ['#18181b', '#52525b', '#d4d4d8'],
     tags: ['Hoodie', 'Winter', 'Darkwear'],
-    isDisabled: true
+    isDisabled: false
   },
 
   // FURNITURE CATEGORY

@@ -42,9 +42,15 @@ function ProductDetailRoute() {
     <ProductDetailPage
       product={product}
       onBack={() => navigate('/')}
-      onOpen3DStudio={(productKey) =>
-        navigate(`/product/${productKey}/canvas`)
-      }
+      onOpen3DStudio={(productKey, color, size) => {
+        const params = new URLSearchParams();
+        if (color) params.set('color', color);
+        if (size) params.set('size', size);
+        const query = params.toString();
+        navigate(
+          `/product/${productKey}/canvas${query ? `?${query}` : ''}`
+        );
+      }}
     />
   );
 }

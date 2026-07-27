@@ -1,16 +1,25 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import {
   HiOutlineShoppingBag,
   HiOutlineBolt,
   HiOutlineCube,
+  HiOutlinePhoto,
   HiOutlineArrowRight,
   HiOutlineCheck
 } from 'react-icons/hi2';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import '@google/model-viewer';
 import { ProductItem } from './catalog';
 import { PRODUCTS, getModelUrl } from '../app/constants';
 import { resolveAssetPath } from '../app/resolveAssetPath';
 import type { ModelViewerElement } from '../app/types';
+import { hexToRgba, normalizeHexColor } from '../app/colorUtils';
+import {
+  PRODUCT_SIZES,
+  getSizeScaleVector,
+  normalizeProductSize,
+  type ProductSize
+} from '../app/sizeUtils';
 import { Modal } from './Modal';
 import modalStyles from './Modal.module.css';
 import styles from './ProductDetailPage.module.css';
@@ -38,7 +47,7 @@ const INITIAL_CHECKOUT: CheckoutFormState = {
 interface ProductDetailPageProps {
   product: ProductItem;
   onBack: () => void;
-  onOpen3DStudio: (productKey: string) => void;
+  onOpen3DStudio: (productKey: string, color?: string, size?: string) => void;
 }
 
 export function ProductDetailPage({
@@ -46,16 +55,32 @@ export function ProductDetailPage({
   onBack,
   onOpen3DStudio
 }: ProductDetailPageProps) {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const configuratorKey = product.configuratorKey;
   const has3DPreview =
     Boolean(configuratorKey) && Boolean(configuratorKey && PRODUCTS[configuratorKey]);
+
+  const initialColorIndex = useMemo(() => {
+    const fromQuery = normalizeHexColor(searchParams.get('color'));
+    if (!fromQuery) return 0;
+    const matchIndex = product.colorSwatches.findIndex(
+      (swatch) => normalizeHexColor(swatch) === fromQuery
+    );
+    return matchIndex >= 0 ? matchIndex : 0;
+  }, [product.colorSwatches, searchParams]);
+
+  const initialSize = useMemo(
+    () => normalizeProductSize(searchParams.get('size')),
+    [searchParams]
+  );
 
   const [viewMode, setViewMode] = useState<'3d' | 'photo'>(
     has3DPreview ? '3d' : 'photo'
   );
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('M');
+  const [selectedColorIndex, setSelectedColorIndex] = useState(initialColorIndex);
+  const [selectedSize, setSelectedSize] = useState<ProductSize>(initialSize);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [checkout, setCheckout] = useState<CheckoutFormState>(INITIAL_CHECKOUT);
   const [cartCount, setCartCount] = useState(0);
@@ -72,14 +97,79 @@ export function ProductDetailPage({
       ? resolveAssetPath(getModelUrl(configuratorKey))
       : null;
 
+  const applyModelColor = useCallback(() => {
+    const modelViewer = modelViewerRef.current;
+    const materials = modelViewer?.model?.materials;
+    if (!materials?.length) return;
+
+    const selectedColor = product.colorSwatches[selectedColorIndex];
+    const colorFactor = selectedColor ? hexToRgba(selectedColor) : null;
+    if (!colorFactor) return;
+
+    materials.forEach((material) => {
+      if (material.setBaseColorFactor) {
+        material.setBaseColorFactor(colorFactor);
+        return;
+      }
+
+      material.pbrMetallicRoughness?.setBaseColorFactor?.(colorFactor);
+    });
+  }, [product.colorSwatches, selectedColorIndex]);
+
   useEffect(() => {
     const modelViewer = modelViewerRef.current;
     if (!modelViewer || !product3D) return;
     modelViewer.cameraOrbit = product3D.cameraOrbit;
+    modelViewer.scale = getSizeScaleVector(selectedSize);
     modelViewer.jumpCameraToGoal?.();
-  }, [product3D]);
+  }, [product3D, selectedSize]);
+
+  useEffect(() => {
+    if (viewMode !== '3d' || !modelUrl) return;
+
+    const modelViewer = modelViewerRef.current;
+    if (!modelViewer) return;
+
+    applyModelColor();
+    modelViewer.scale = getSizeScaleVector(selectedSize);
+
+    const handleLoad = () => {
+      applyModelColor();
+      modelViewer.scale = getSizeScaleVector(selectedSize);
+    };
+
+    modelViewer.addEventListener('load', handleLoad);
+    return () => {
+      modelViewer.removeEventListener('load', handleLoad);
+    };
+  }, [applyModelColor, modelUrl, viewMode, selectedSize]);
+
+  const syncProductQuery = useCallback(
+    (colorIndex: number, size: ProductSize) => {
+      const params = new URLSearchParams(searchParams);
+      const color = normalizeHexColor(product.colorSwatches[colorIndex]);
+      if (color) params.set('color', color);
+      else params.delete('color');
+      params.set('size', size);
+      navigate(
+        { pathname: `/shop/${product.id}`, search: `?${params.toString()}` },
+        { replace: true }
+      );
+    },
+    [navigate, product.colorSwatches, product.id, searchParams]
+  );
 
   const closeModal = () => setActiveModal(null);
+
+  const handleSelectColor = (index: number) => {
+    setSelectedColorIndex(index);
+    syncProductQuery(index, selectedSize);
+  };
+
+  const handleSelectSize = (size: ProductSize) => {
+    setSelectedSize(size);
+    syncProductQuery(selectedColorIndex, size);
+  };
 
   const handleAddToCart = () => {
     setCartCount((count) => count + 1);
@@ -158,6 +248,31 @@ export function ProductDetailPage({
       <div className={styles.pdpGrid}>
         {/* Left Column: 3D Preview / Image Gallery */}
         <div className={styles.galleryWrapper}>
+          <div className={styles.viewModeTabs}>
+            {has3DPreview && (
+              <button
+                type="button"
+                className={`${styles.viewModeBtn} ${
+                  viewMode === '3d' ? styles.viewModeBtnActive : ''
+                }`}
+                onClick={() => setViewMode('3d')}
+              >
+                <HiOutlineCube aria-hidden />
+                3D View
+              </button>
+            )}
+            <button
+              type="button"
+              className={`${styles.viewModeBtn} ${
+                viewMode === 'photo' ? styles.viewModeBtnActive : ''
+              }`}
+              onClick={() => setViewMode('photo')}
+            >
+              <HiOutlinePhoto aria-hidden />
+              Photos
+            </button>
+          </div>
+
           <div className={styles.mainImageFrame}>
             {viewMode === '3d' && modelUrl && product3D ? (
               <model-viewer
@@ -166,9 +281,19 @@ export function ProductDetailPage({
                 camera-controls
                 {...(product.id === 'apparel-tshirt' ? { 'disable-zoom': true } : {})}
                 camera-orbit={product3D.cameraOrbit}
+                scale={getSizeScaleVector(selectedSize)}
                 shadow-intensity="1"
+                auto-rotate
+                interaction-prompt="auto"
                 className={styles.product3DViewer}
                 style={{ width: '100%', height: '100%' }}
+                onLoad={() => {
+                  applyModelColor();
+                  const modelViewer = modelViewerRef.current;
+                  if (modelViewer) {
+                    modelViewer.scale = getSizeScaleVector(selectedSize);
+                  }
+                }}
               />
             ) : (
               <img
@@ -180,6 +305,9 @@ export function ProductDetailPage({
 
             {product.badge && (
               <span className={styles.badgeOverlay}>{product.badge}</span>
+            )}
+            {product.category === 'apparel' && viewMode === '3d' && (
+              <span className={styles.sizeOverlay}>Size {selectedSize}</span>
             )}
           </div>
 
@@ -254,7 +382,7 @@ export function ProductDetailPage({
                     selectedColorIndex === idx ? styles.colorDotActive : ''
                   }`}
                   style={{ backgroundColor: color }}
-                  onClick={() => setSelectedColorIndex(idx)}
+                  onClick={() => handleSelectColor(idx)}
                   title={`Color ${idx + 1}`}
                 />
               ))}
@@ -266,13 +394,13 @@ export function ProductDetailPage({
             <div className={styles.sizeSection}>
               <span className={styles.sectionLabel}>Select Size:</span>
               <div className={styles.sizeList}>
-                {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                {PRODUCT_SIZES.map((size) => (
                   <button
                     key={size}
                     className={`${styles.sizeBtn} ${
                       selectedSize === size ? styles.sizeBtnActive : ''
                     }`}
-                    onClick={() => setSelectedSize(size)}
+                    onClick={() => handleSelectSize(size)}
                   >
                     {size}
                   </button>
@@ -294,16 +422,22 @@ export function ProductDetailPage({
 
           {/* Action CTAs */}
           <div className={styles.actionsBox}>
-            <button
-              className={styles.customize3DBtn}
-              onClick={() =>
-                onOpen3DStudio(product.configuratorKey || 'apparel')
-              }
-            >
-              <HiOutlineCube className={styles.btnIcon} aria-hidden />
-              <span>Customize in 3D Studio</span>
-              <HiOutlineArrowRight className={styles.btnIcon} aria-hidden />
-            </button>
+            {has3DPreview && configuratorKey && (
+              <button
+                className={styles.customize3DBtn}
+                onClick={() =>
+                  onOpen3DStudio(
+                    configuratorKey,
+                    product.colorSwatches[selectedColorIndex],
+                    selectedSize
+                  )
+                }
+              >
+                <HiOutlineCube className={styles.btnIcon} aria-hidden />
+                <span>Customize in 3D Studio</span>
+                <HiOutlineArrowRight className={styles.btnIcon} aria-hidden />
+              </button>
+            )}
 
             <div className={styles.secondaryActions}>
               <button className={styles.cartBtn} onClick={handleAddToCart}>

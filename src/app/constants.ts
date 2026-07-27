@@ -30,17 +30,32 @@ export const DEFAULT_EXPORT_HEIGHT = 1048;
  * Each product has assets in public/{assetsFolderName}/.
  */
 export const PRODUCTS: Record<string, Product> = {
-  businesscard: {
-    label: 'Business Card',
-    assetsFolderName: 'business-card',
-    baseColorTextureIndex: 0,
-    cameraOrbit: '160deg 90deg'
-  },
   cap: {
     label: 'Baseball Cap',
     assetsFolderName: 'cap',
     baseColorTextureIndex: 0,
-    cameraOrbit: '160deg 90deg'
+    cameraOrbit: '160deg 90deg',
+    compositeDesignOntoBase: true,
+    baseAlbedoPath: '/cap/textures/Material_baseColor.png',
+    // Cap front-panel UV is angled/mirrored vs the Fabric canvas.
+    uvDesignTransform: {
+      autoAlign: true,
+      flipX: true,
+      rotationDeg: 0
+    }
+  },
+  businesscard: {
+    label: 'Business Card',
+    assetsFolderName: 'business-card',
+    baseColorTextureIndex: 0,
+    cameraOrbit: '160deg 90deg',
+    compositeDesignOntoBase: true,
+    baseAlbedoPath: '/business-card/textures/Material_baseColor.png',
+    uvDesignTransform: {
+      autoAlign: false,
+      flipX: false,
+      rotationDeg: 0
+    }
   },
   apparel: {
     label: 'Apparel',

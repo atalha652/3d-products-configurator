@@ -16,6 +16,20 @@ export interface Product {
   baseColorTextureIndex: number;
   /** Camera orbit position for 3D view */
   cameraOrbit: string;
+  /**
+   * When true, design artwork is composited onto the product's original
+   * albedo UV map instead of replacing the whole material texture.
+   */
+  compositeDesignOntoBase?: boolean;
+  /** Optional absolute public path to the base albedo texture */
+  baseAlbedoPath?: string;
+  /** UV placement correction when compositing artwork onto the albedo map */
+  uvDesignTransform?: {
+    rotationDeg?: number;
+    flipX?: boolean;
+    flipY?: boolean;
+    autoAlign?: boolean;
+  };
 }
 
 import classNames from 'classnames';

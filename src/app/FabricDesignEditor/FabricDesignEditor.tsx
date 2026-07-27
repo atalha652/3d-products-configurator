@@ -51,6 +51,7 @@ import {
   FiZoomIn,
   FiZoomOut
 } from 'react-icons/fi';
+import { normalizeHexColor } from '../colorUtils';
 import styles from './FabricDesignEditor.module.css';
 
 export interface FabricEditorApi {
@@ -61,6 +62,11 @@ export interface FabricEditorApi {
 interface FabricDesignEditorProps {
   className?: string;
   initialSceneJson?: string | null;
+  productColor?: string | null;
+  colorSwatches?: string[];
+  onProductColorChange?: (color: string) => void;
+  /** When true, bake page color into the 3D print texture (multi-material apparel). */
+  embedProductColorInTexture?: boolean;
   onReady?: (api: FabricEditorApi) => void;
   onTextureUrl?: (url: string) => void;
   onLoadingChange?: (loading: boolean) => void;
@@ -101,6 +107,10 @@ const DOCK_ITEMS: Array<{
 export function FabricDesignEditor({
   className,
   initialSceneJson,
+  productColor = '#ffffff',
+  colorSwatches = [],
+  onProductColorChange,
+  embedProductColorInTexture = true,
   onReady,
   onTextureUrl,
   onLoadingChange
@@ -170,7 +180,15 @@ export function FabricDesignEditor({
     if (!canvas) return;
 
     onLoadingChange?.(true);
+    const previousBackground = canvas.backgroundColor;
     try {
+      // Apparel print material stays untinted, so bake page color into the texture.
+      // Cap/UV composites tint via baseColorFactor instead — keep export white there.
+      canvas.backgroundColor = embedProductColorInTexture
+        ? normalizeHexColor(productColor) ?? '#ffffff'
+        : '#ffffff';
+      canvas.requestRenderAll();
+
       const dataUrl = canvas.toDataURL({
         format: 'png',
         multiplier: 1,
@@ -181,9 +199,16 @@ export function FabricDesignEditor({
       const url = URL.createObjectURL(blob);
       onTextureUrl?.(url);
     } finally {
+      canvas.backgroundColor = previousBackground || '#ffffff';
+      canvas.requestRenderAll();
       onLoadingChange?.(false);
     }
-  }, [onLoadingChange, onTextureUrl]);
+  }, [
+    embedProductColorInTexture,
+    onLoadingChange,
+    onTextureUrl,
+    productColor
+  ]);
 
   const scheduleExport = useCallback(() => {
     clearTimeout(debounceRef.current);
@@ -192,6 +217,22 @@ export function FabricDesignEditor({
       void exportTexture();
     }, DEFAULT_RENDER_DEBOUNCE_MS);
   }, [exportTexture, onLoadingChange]);
+
+  const applyCanvasBackground = useCallback(
+    (color?: string | null) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const next = normalizeHexColor(color) ?? '#ffffff';
+      canvas.backgroundColor = next;
+      canvas.requestRenderAll();
+      scheduleExport();
+    },
+    [scheduleExport]
+  );
+
+  useEffect(() => {
+    applyCanvasBackground(productColor);
+  }, [productColor, applyCanvasBackground]);
 
   const pushHistory = useCallback(() => {
     const canvas = canvasRef.current;
@@ -221,7 +262,7 @@ export function FabricDesignEditor({
       suppressHistoryRef.current = true;
       try {
         await canvas.loadFromJSON(JSON.parse(snapshot));
-        canvas.backgroundColor = '#ffffff';
+        canvas.backgroundColor = normalizeHexColor(productColor) ?? '#ffffff';
         canvas.requestRenderAll();
         historyIndexRef.current = index;
         updateHistoryButtons();
@@ -230,7 +271,7 @@ export function FabricDesignEditor({
         suppressHistoryRef.current = false;
       }
     },
-    [scheduleExport, updateHistoryButtons]
+    [productColor, scheduleExport, updateHistoryButtons]
   );
 
   const seedStarterDesign = useCallback((canvas: Canvas) => {
@@ -265,7 +306,7 @@ export function FabricDesignEditor({
     const canvas = new Canvas(canvasElRef.current, {
       width: DEFAULT_EXPORT_WIDTH,
       height: DEFAULT_EXPORT_HEIGHT,
-      backgroundColor: '#ffffff',
+      backgroundColor: normalizeHexColor(productColor) ?? '#ffffff',
       preserveObjectStacking: true,
       selection: true
     });
@@ -330,7 +371,7 @@ export function FabricDesignEditor({
       if (initialSceneJson) {
         try {
           await canvas.loadFromJSON(JSON.parse(initialSceneJson));
-          canvas.backgroundColor = '#ffffff';
+          canvas.backgroundColor = normalizeHexColor(productColor) ?? '#ffffff';
           canvas.requestRenderAll();
         } catch {
           seedStarterDesign(canvas);
@@ -651,7 +692,7 @@ export function FabricDesignEditor({
     if (!canvas) return;
     suppressHistoryRef.current = true;
     canvas.clear();
-    canvas.backgroundColor = '#ffffff';
+    canvas.backgroundColor = normalizeHexColor(productColor) ?? '#ffffff';
     seedStarterDesign(canvas);
     suppressHistoryRef.current = false;
     pushHistory();
@@ -714,6 +755,32 @@ export function FabricDesignEditor({
         </div>
 
         <div className={styles.exportControls}>
+          {colorSwatches.length > 0 && onProductColorChange && (
+            <div className={styles.pageColorPicker} role="group" aria-label="Page color">
+              <span>Page color</span>
+              <div className={styles.pageColorSwatches}>
+                {colorSwatches.map((color) => {
+                  const normalized = normalizeHexColor(color) ?? color;
+                  const isActive =
+                    (normalizeHexColor(productColor) ?? '#ffffff') === normalized;
+                  return (
+                    <button
+                      key={normalized}
+                      type="button"
+                      className={`${styles.pageColorSwatch} ${
+                        isActive ? styles.pageColorSwatchActive : ''
+                      }`}
+                      style={{ backgroundColor: normalized }}
+                      title={normalized}
+                      aria-label={`Set page color ${normalized}`}
+                      aria-pressed={isActive}
+                      onClick={() => onProductColorChange(normalized)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <button
             type="button"
             className={styles.exportButton}
