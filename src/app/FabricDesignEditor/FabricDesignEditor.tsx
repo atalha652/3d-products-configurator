@@ -787,7 +787,7 @@ export function FabricDesignEditor({
             onClick={handleExportDownload}
           >
             <FiDownload aria-hidden="true" />
-            Export Image
+            <span>Export Image</span>
           </button>
           <button
             type="button"
@@ -795,7 +795,7 @@ export function FabricDesignEditor({
             onClick={() => void handleExportPdf()}
           >
             <FiFileText aria-hidden="true" />
-            Export PDF
+            <span>Export PDF</span>
           </button>
         </div>
       </header>

@@ -1,0 +1,542 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 2952,
+      "max": [
+        149.5469970703125,
+        49.945037841796875,
+        409.4512939453125
+      ],
+      "min": [
+        -149.64764404296875,
+        -33.79833984375,
+        231.4395294189453
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 35424,
+      "componentType": 5126,
+      "count": 2952,
+      "max": [
+        0.999779462814331,
+        0.9996131062507629,
+        0.9918646812438965
+      ],
+      "min": [
+        -0.9993761777877808,
+        -0.999527633190155,
+        -0.9998135566711426
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 2952,
+      "max": [
+        0.9999945759773254,
+        0.999626100063324,
+        0.9965558648109436,
+        1.0
+      ],
+      "min": [
+        -0.9999982118606567,
+        -0.999721109867096,
+        -0.9992806911468506,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 2952,
+      "max": [
+        0.9906495809555054,
+        0.9914781451225281
+      ],
+      "min": [
+        0.004468664526939392,
+        0.0057126181200146675
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 15699,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 70848,
+      "componentType": 5126,
+      "count": 550,
+      "max": [
+        76.2814712524414,
+        103.82920837402344,
+        76.22063446044922
+      ],
+      "min": [
+        -29.42938232421875,
+        -298.6070251464844,
+        -0.40743255615234375
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 77448,
+      "componentType": 5126,
+      "count": 550,
+      "max": [
+        0.9817335605621338,
+        0.999281108379364,
+        0.999984622001648
+      ],
+      "min": [
+        -0.9906184077262878,
+        -0.9238378405570984,
+        -0.999984622001648
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 47232,
+      "componentType": 5126,
+      "count": 550,
+      "max": [
+        0.999984622001648,
+        0.9998997449874878,
+        0.9587094783782959,
+        1.0
+      ],
+      "min": [
+        -0.9998680949211121,
+        -0.99997478723526,
+        -0.9999758005142212,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 23616,
+      "componentType": 5126,
+      "count": 550,
+      "max": [
+        0.9912574291229248,
+        0.9957652688026428
+      ],
+      "min": [
+        0.01799165830016136,
+        0.015478670597076416
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 62796,
+      "componentType": 5125,
+      "count": 2292,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "DanlyVostok (https://sketchfab.com/1799danly)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/low-poly-tactical-jacket-0d883d962375451f8d50f830d3b41380",
+      "title": "Low Poly Tactical jacket"
+    },
+    "generator": "Sketchfab-16.59.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 71964,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 28016,
+      "byteOffset": 71964,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 84048,
+      "byteOffset": 99980,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 56032,
+      "byteOffset": 184028,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 240060,
+      "uri": "scene.bin"
+    }
+  ],
+  "extensionsRequired": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "extensionsUsed": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "images": [
+    {
+      "uri": "textures/Material_26_diffuse.png"
+    },
+    {
+      "uri": "textures/Material_26_specularGlossiness.png"
+    },
+    {
+      "uri": "textures/Material_26_normal.png"
+    },
+    {
+      "uri": "textures/Material_26_occlusion.png"
+    },
+    {
+      "uri": "textures/Material_25_diffuse.png"
+    },
+    {
+      "uri": "textures/Material_25_specularGlossiness.png"
+    },
+    {
+      "uri": "textures/Material_25_normal.png"
+    },
+    {
+      "uri": "textures/Material_25_occlusion.png"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 0
+          },
+          "glossinessFactor": 1.0,
+          "specularFactor": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "specularGlossinessTexture": {
+            "index": 1
+          }
+        }
+      },
+      "name": "Material_26",
+      "normalTexture": {
+        "index": 2
+      },
+      "occlusionTexture": {
+        "index": 3
+      }
+    },
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 4
+          },
+          "glossinessFactor": 1.0,
+          "specularFactor": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "specularGlossinessTexture": {
+            "index": 5
+          }
+        }
+      },
+      "name": "Material_25",
+      "normalTexture": {
+        "index": 6
+      },
+      "occlusionTexture": {
+        "index": 7
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Low Poly Sviter_Material #26_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3
+          },
+          "indices": 4,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Box00631_Material #25_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 6,
+            "POSITION": 5,
+            "TANGENT": 7,
+            "TEXCOORD_0": 8
+          },
+          "indices": 9,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        0.02539999969303608,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.02539999969303608,
+        0.0,
+        0.0,
+        -0.02539999969303608,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sviter Low Poly Final.fbx"
+    },
+    {
+      "children": [
+        3,
+        6
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        0.39546799659729004,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        8.781153506493889e-17,
+        -0.39546799659729004,
+        0.0,
+        0.0,
+        0.39546799659729004,
+        8.781153506493889e-17,
+        0.0,
+        -0.022387484088540077,
+        125.34688568115234,
+        -1.3477989435195923,
+        1.0
+      ],
+      "name": "Low Poly Sviter"
+    },
+    {
+      "children": [
+        5
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        -0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.056610107421875,
+        -3.408111572265625,
+        -318.6092224121094,
+        1.0
+      ],
+      "name": "Object_4"
+    },
+    {
+      "mesh": 0,
+      "name": "Low Poly Sviter_Material #26_0"
+    },
+    {
+      "children": [
+        7
+      ],
+      "matrix": [
+        0.012878524125682581,
+        0.00011071816730908956,
+        -1.3093795858308257e-10,
+        0.0,
+        -8.95298100817393e-05,
+        0.01041392623282059,
+        -0.007576989309669009,
+        0.0,
+        -6.513774388960967e-05,
+        0.007576709316923769,
+        0.010414311075127441,
+        0.0,
+        0.4603397846221924,
+        145.31565856933594,
+        6.283268928527832,
+        1.0
+      ],
+      "name": "Box00631"
+    },
+    {
+      "children": [
+        8
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        -0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        -23.426044464111328,
+        97.38890838623047,
+        -37.9066047668457,
+        1.0
+      ],
+      "name": "Object_7"
+    },
+    {
+      "mesh": 1,
+      "name": "Box00631_Material #25_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    },
+    {
+      "sampler": 0,
+      "source": 4
+    },
+    {
+      "sampler": 0,
+      "source": 5
+    },
+    {
+      "sampler": 0,
+      "source": 6
+    },
+    {
+      "sampler": 0,
+      "source": 7
+    }
+  ]
+}

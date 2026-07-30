@@ -14,6 +14,8 @@ export interface ProductItem {
   description: string;
   imageUrl: string;
   galleryImages: string[];
+  /** Optional local GLTF used as the shop card / gallery 3D preview */
+  previewModelUrl?: string;
   colorSwatches: string[];
   configuratorKey?: string;
   tags: string[];
@@ -64,27 +66,9 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     galleryImages: [
       'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop'
     ],
-    colorSwatches: ['#09090b', '#27272a', '#71717a'],
+    colorSwatches: ['#ffffff', '#09090b', '#27272a', '#71717a'],
     configuratorKey: 'cap',
     tags: ['Headwear', 'Accessories', 'Custom'],
-    isDisabled: false
-  },
-  {
-    id: 'apparel-card',
-    name: 'Luxury Velvet Finish Business Card',
-    category: 'apparel',
-    price: 19.99,
-    rating: 4.9,
-    reviewCount: 210,
-    badge: '3D Configurable',
-    description: 'Soft-touch velvet coated card stock with customizable high-end metallic foil embossed layout.',
-    imageUrl: '/jackets/images.jpg',
-    galleryImages: [
-      '/jackets/images.jpg'
-    ],
-    colorSwatches: ['#1e1b4b', '#312e81', '#6366f1'],
-    configuratorKey: 'businesscard',
-    tags: ['Stationery', 'Branding', 'Print'],
     isDisabled: false
   },
   {
@@ -95,14 +79,38 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     originalPrice: 110.00,
     rating: 4.9,
     reviewCount: 76,
-    badge: 'New',
+    badge: '3D Configurable',
     description: 'Heavy fleece lined dark hoodie with water-resistant coating, thumbhole cuffs, and high collar.',
-    imageUrl: '/jackets/jacket.jpg',
+    imageUrl: '/hooded_jacket/textures/JacketMat_baseColor.jpeg',
     galleryImages: [
-      '/jackets/jacket.jpg'
+      '/hooded_jacket/textures/JacketMat_baseColor.jpeg'
     ],
-    colorSwatches: ['#18181b', '#52525b', '#d4d4d8'],
+    previewModelUrl: '/hooded_jacket/scene.gltf',
+    colorSwatches: ['#ffffff', '#18181b', '#52525b', '#d4d4d8'],
+    configuratorKey: 'hoodie',
     tags: ['Hoodie', 'Winter', 'Darkwear'],
+    isDisabled: false
+  },
+  {
+    id: 'apparel-tactical-jacket',
+    name: 'Low Poly Tactical Field Jacket',
+    category: 'apparel',
+    price: 124.00,
+    originalPrice: 149.00,
+    rating: 4.8,
+    reviewCount: 61,
+    badge: '3D Configurable',
+    description:
+      'Rugged low-poly tactical field jacket with layered panels, utility silhouette, and real-time 3D color preview.',
+    imageUrl: '/low_poly_tactical_jacket/textures/Material_26_diffuse.png',
+    galleryImages: [
+      '/low_poly_tactical_jacket/textures/Material_26_diffuse.png',
+      '/low_poly_tactical_jacket/textures/Material_25_diffuse.png'
+    ],
+    previewModelUrl: '/low_poly_tactical_jacket/scene.gltf',
+    colorSwatches: ['#ffffff', '#1f2937', '#365314', '#78716c'],
+    configuratorKey: 'tacticalJacket',
+    tags: ['Jacket', 'Tactical', 'Outerwear'],
     isDisabled: false
   },
 

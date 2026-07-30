@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low Poly Tactical jacket
+* source:	https://sketchfab.com/3d-models/low-poly-tactical-jacket-0d883d962375451f8d50f830d3b41380
+* author:	DanlyVostok (https://sketchfab.com/1799danly)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low Poly Tactical jacket" (https://sketchfab.com/3d-models/low-poly-tactical-jacket-0d883d962375451f8d50f830d3b41380) by DanlyVostok (https://sketchfab.com/1799danly) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

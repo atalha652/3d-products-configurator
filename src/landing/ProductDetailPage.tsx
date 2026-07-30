@@ -279,7 +279,7 @@ export function ProductDetailPage({
                 ref={modelViewerRef as React.RefObject<HTMLElement>}
                 src={modelUrl}
                 camera-controls
-                {...(product.id === 'apparel-tshirt' ? { 'disable-zoom': true } : {})}
+                disable-zoom
                 camera-orbit={product3D.cameraOrbit}
                 scale={getSizeScaleVector(selectedSize)}
                 shadow-intensity="1"

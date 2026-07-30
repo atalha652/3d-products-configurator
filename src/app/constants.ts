@@ -44,24 +44,38 @@ export const PRODUCTS: Record<string, Product> = {
       rotationDeg: 0
     }
   },
-  businesscard: {
-    label: 'Business Card',
-    assetsFolderName: 'business-card',
+  apparel: {
+    label: 'Apparel',
+    assetsFolderName: 't-shirt',
+    baseColorTextureIndex: 1,
+    cameraOrbit: '0deg 90deg'
+  },
+  hoodie: {
+    label: 'Hoodie',
+    assetsFolderName: 'hooded_jacket',
     baseColorTextureIndex: 0,
-    cameraOrbit: '160deg 90deg',
+    cameraOrbit: '0deg 75deg',
     compositeDesignOntoBase: true,
-    baseAlbedoPath: '/business-card/textures/Material_baseColor.png',
+    baseAlbedoPath: '/hooded_jacket/textures/JacketMat_baseColor.jpeg',
     uvDesignTransform: {
       autoAlign: false,
       flipX: false,
       rotationDeg: 0
     }
   },
-  apparel: {
-    label: 'Apparel',
-    assetsFolderName: 't-shirt',
-    baseColorTextureIndex: 1,
-    cameraOrbit: '0deg 90deg'
+  tacticalJacket: {
+    label: 'Tactical Jacket',
+    assetsFolderName: 'low_poly_tactical_jacket',
+    baseColorTextureIndex: 0,
+    cameraOrbit: '0deg 75deg',
+    compositeDesignOntoBase: true,
+    baseAlbedoPath:
+      '/low_poly_tactical_jacket/textures/Material_26_diffuse.png',
+    uvDesignTransform: {
+      autoAlign: false,
+      flipX: false,
+      rotationDeg: 0
+    }
   }
 };
 

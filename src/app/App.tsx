@@ -22,13 +22,15 @@ const DEFAULT_PRODUCT_KEY = 'apparel';
 const SHOP_ROUTE_BY_PRODUCT: Record<string, string> = {
   apparel: '/shop/apparel-tshirt',
   cap: '/shop/apparel-cap',
-  businesscard: '/shop/apparel-card'
+  hoodie: '/shop/apparel-hoodie',
+  tacticalJacket: '/shop/apparel-tactical-jacket'
 };
 
 const DEFAULT_COLOR_SWATCHES: Record<string, string[]> = {
   apparel: ['#ffffff', '#18181b', '#3f3f46', '#a1a1aa'],
-  cap: ['#09090b', '#27272a', '#71717a'],
-  businesscard: ['#1e1b4b', '#312e81', '#6366f1']
+  cap: ['#ffffff', '#09090b', '#27272a', '#71717a'],
+  hoodie: ['#ffffff', '#18181b', '#52525b', '#d4d4d8'],
+  tacticalJacket: ['#ffffff', '#1f2937', '#365314', '#78716c']
 };
 
 export default function App() {

@@ -43,6 +43,8 @@ declare global {
           'auto-rotate'?: boolean;
           'interaction-prompt'?: string;
           'touch-action'?: string;
+          'rotation-per-second'?: string;
+          poster?: string;
           exposure?: string;
           alt?: string;
           scale?: string;

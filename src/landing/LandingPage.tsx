@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import '@google/model-viewer';
 import { CATALOG_PRODUCTS, ProductItem } from './catalog';
 import styles from './LandingPage.module.css';
 
@@ -164,11 +165,25 @@ export function LandingPage({ onSelectProductItem, onLaunchStudio }: LandingPage
               className={styles.cardImageContainer}
               onClick={() => handleProductAction(product)}
             >
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className={styles.cardImage}
-              />
+              {product.previewModelUrl ? (
+                <model-viewer
+                  src={product.previewModelUrl}
+                  poster={product.imageUrl}
+                  disable-zoom
+                  auto-rotate
+                  rotation-per-second="20deg"
+                  interaction-prompt="none"
+                  shadow-intensity="0.6"
+                  className={styles.cardModel}
+                  style={{ width: '100%', height: '100%', pointerEvents: 'none' }}
+                />
+              ) : (
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className={styles.cardImage}
+                />
+              )}
 
               {product.badge && (
                 <span
