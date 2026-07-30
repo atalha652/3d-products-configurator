@@ -61,19 +61,45 @@ export function ProductDetailPage({
   const has3DPreview =
     Boolean(configuratorKey) && Boolean(configuratorKey && PRODUCTS[configuratorKey]);
 
+  const whiteOnlyColors = product.id === 'apparel-tshirt';
+  const mediumOnlySize = product.id === 'apparel-tshirt';
+
+  const isColorEnabled = useCallback(
+    (color: string) => {
+      if (!whiteOnlyColors) return true;
+      return normalizeHexColor(color) === '#ffffff';
+    },
+    [whiteOnlyColors]
+  );
+
+  const isSizeEnabled = useCallback(
+    (size: ProductSize) => {
+      if (!mediumOnlySize) return true;
+      return size === 'M';
+    },
+    [mediumOnlySize]
+  );
+
   const initialColorIndex = useMemo(() => {
+    const whiteIndex = product.colorSwatches.findIndex(
+      (swatch) => normalizeHexColor(swatch) === '#ffffff'
+    );
+    const fallbackWhite = whiteIndex >= 0 ? whiteIndex : 0;
+
+    if (whiteOnlyColors) return fallbackWhite;
+
     const fromQuery = normalizeHexColor(searchParams.get('color'));
     if (!fromQuery) return 0;
     const matchIndex = product.colorSwatches.findIndex(
       (swatch) => normalizeHexColor(swatch) === fromQuery
     );
     return matchIndex >= 0 ? matchIndex : 0;
-  }, [product.colorSwatches, searchParams]);
+  }, [product.colorSwatches, searchParams, whiteOnlyColors]);
 
-  const initialSize = useMemo(
-    () => normalizeProductSize(searchParams.get('size')),
-    [searchParams]
-  );
+  const initialSize = useMemo(() => {
+    if (mediumOnlySize) return 'M';
+    return normalizeProductSize(searchParams.get('size'));
+  }, [mediumOnlySize, searchParams]);
 
   const [viewMode, setViewMode] = useState<'3d' | 'photo'>(
     has3DPreview ? '3d' : 'photo'
@@ -162,11 +188,14 @@ export function ProductDetailPage({
   const closeModal = () => setActiveModal(null);
 
   const handleSelectColor = (index: number) => {
+    const color = product.colorSwatches[index];
+    if (!color || !isColorEnabled(color)) return;
     setSelectedColorIndex(index);
     syncProductQuery(index, selectedSize);
   };
 
   const handleSelectSize = (size: ProductSize) => {
+    if (!isSizeEnabled(size)) return;
     setSelectedSize(size);
     syncProductQuery(selectedColorIndex, size);
   };
@@ -375,17 +404,26 @@ export function ProductDetailPage({
           <div className={styles.colorSection}>
             <span className={styles.sectionLabel}>Select Color:</span>
             <div className={styles.colorList}>
-              {product.colorSwatches.map((color, idx) => (
-                <div
-                  key={idx}
-                  className={`${styles.colorDot} ${
-                    selectedColorIndex === idx ? styles.colorDotActive : ''
-                  }`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => handleSelectColor(idx)}
-                  title={`Color ${idx + 1}`}
-                />
-              ))}
+              {product.colorSwatches.map((color, idx) => {
+                const enabled = isColorEnabled(color);
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`${styles.colorDot} ${
+                      selectedColorIndex === idx ? styles.colorDotActive : ''
+                    } ${enabled ? '' : styles.colorDotDisabled}`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleSelectColor(idx)}
+                    disabled={!enabled}
+                    title={enabled ? `Color ${idx + 1}` : 'Color unavailable'}
+                    aria-label={
+                      enabled ? `Select color ${color}` : `Color ${color} disabled`
+                    }
+                    aria-pressed={selectedColorIndex === idx}
+                  />
+                );
+              })}
             </div>
           </div>
 
@@ -394,17 +432,24 @@ export function ProductDetailPage({
             <div className={styles.sizeSection}>
               <span className={styles.sectionLabel}>Select Size:</span>
               <div className={styles.sizeList}>
-                {PRODUCT_SIZES.map((size) => (
-                  <button
-                    key={size}
-                    className={`${styles.sizeBtn} ${
-                      selectedSize === size ? styles.sizeBtnActive : ''
-                    }`}
-                    onClick={() => handleSelectSize(size)}
-                  >
-                    {size}
-                  </button>
-                ))}
+                {PRODUCT_SIZES.map((size) => {
+                  const enabled = isSizeEnabled(size);
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      className={`${styles.sizeBtn} ${
+                        selectedSize === size ? styles.sizeBtnActive : ''
+                      } ${enabled ? '' : styles.sizeBtnDisabled}`}
+                      onClick={() => handleSelectSize(size)}
+                      disabled={!enabled}
+                      title={enabled ? `Size ${size}` : 'Size unavailable'}
+                      aria-pressed={selectedSize === size}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
