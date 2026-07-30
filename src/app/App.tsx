@@ -181,9 +181,7 @@ export default function App() {
             <FabricDesignEditor
               className={styles.editor}
               initialSceneJson={designSceneJsonRef.current}
-              productColor={productColor}
-              colorSwatches={colorSwatches}
-              onProductColorChange={handleProductColorChange}
+              productColor="#ffffff"
               embedProductColorInTexture={!product.compositeDesignOntoBase}
               onReady={handleEditorReady}
               onTextureUrl={handleTextureUrl}

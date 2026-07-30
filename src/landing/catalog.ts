@@ -69,7 +69,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     colorSwatches: ['#ffffff', '#09090b', '#27272a', '#71717a'],
     configuratorKey: 'cap',
     tags: ['Headwear', 'Accessories', 'Custom'],
-    isDisabled: false
+    isDisabled: true
   },
   {
     id: 'apparel-hoodie',
@@ -89,7 +89,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     colorSwatches: ['#ffffff', '#18181b', '#52525b', '#d4d4d8'],
     configuratorKey: 'hoodie',
     tags: ['Hoodie', 'Winter', 'Darkwear'],
-    isDisabled: false
+    isDisabled: true
   },
   {
     id: 'apparel-tactical-jacket',
@@ -111,7 +111,7 @@ export const CATALOG_PRODUCTS: ProductItem[] = [
     colorSwatches: ['#ffffff', '#1f2937', '#365314', '#78716c'],
     configuratorKey: 'tacticalJacket',
     tags: ['Jacket', 'Tactical', 'Outerwear'],
-    isDisabled: false
+    isDisabled: true
   },
 
   // FURNITURE CATEGORY
