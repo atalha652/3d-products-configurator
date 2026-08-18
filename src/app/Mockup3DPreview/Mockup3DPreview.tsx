@@ -95,10 +95,13 @@ export function Mockup3DPreview({
     modelViewer.scale = getSizeScaleVector(normalizedSize);
   }, [normalizedSize]);
 
+  /**
+   * Returns false only when the GLTF is not ready yet, so callers can retry.
+   */
   const applyTexture = useCallback(async () => {
     const modelViewer = modelViewerRef.current;
-    if (!modelViewer || !mockupImageUrl) return;
-    if (!modelViewer.model) return;
+    if (!modelViewer || !mockupImageUrl) return false;
+    if (!modelViewer.model?.materials?.length) return false;
 
     try {
       let textureSource = mockupImageUrl;
@@ -124,9 +127,11 @@ export function Mockup3DPreview({
       }
 
       applyProductColor();
+      return true;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to apply texture:', error);
+      return true;
     }
   }, [
     mockupImageUrl,
@@ -137,10 +142,41 @@ export function Mockup3DPreview({
     uvDesignTransform
   ]);
 
+  /**
+   * The design texture is usually ready before the GLTF finishes loading, and
+   * model-viewer's `load` event does not reliably reach React's onLoad prop.
+   * Listen natively and keep retrying until the model can accept the texture.
+   */
   useEffect(() => {
-    if (!mockupImageUrl) return;
-    void applyTexture();
-  }, [mockupImageUrl, applyTexture]);
+    const modelViewer = modelViewerRef.current;
+    if (!modelViewer || !mockupImageUrl) return;
+
+    let cancelled = false;
+    let retryTimer: number | undefined;
+
+    const attempt = async () => {
+      if (cancelled) return;
+      const applied = await applyTexture();
+      if (!applied && !cancelled) {
+        retryTimer = window.setTimeout(() => void attempt(), 150);
+      }
+    };
+
+    const handleLoad = () => {
+      applyProductColor();
+      applyProductSize();
+      void attempt();
+    };
+
+    modelViewer.addEventListener('load', handleLoad);
+    void attempt();
+
+    return () => {
+      cancelled = true;
+      if (retryTimer) window.clearTimeout(retryTimer);
+      modelViewer.removeEventListener('load', handleLoad);
+    };
+  }, [mockupImageUrl, applyTexture, applyProductColor, applyProductSize]);
 
   useEffect(() => {
     applyProductColor();
